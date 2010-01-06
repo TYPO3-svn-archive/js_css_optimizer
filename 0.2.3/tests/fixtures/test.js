@@ -1,0 +1,2 @@
+alert('ddd'):
+// comment
