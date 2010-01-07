@@ -1,3 +1,7 @@
+2010-01-07  Axel Jung  <axel.jung@aoemedia.de>
+	
+	* Add manual
+	
 2010-01-06  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: "Call-time pass-by-reference has been deprecated" warning appeared
