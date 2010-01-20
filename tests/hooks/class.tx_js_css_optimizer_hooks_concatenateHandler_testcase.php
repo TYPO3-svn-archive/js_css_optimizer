@@ -112,6 +112,30 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 			$this->assertContains('/fixtures/../../images/test4.gif',$content);
 		}
 	}
+	public function test_EXT_paths(){
+		$folder = 'EXT:js_css_optimizer/tests/hooks/fixtures/';
+		$jsLibs = array();
+		$jsFiles = array();
+		$jsFooterFiles = array();
+		$cssFiles = array(
+			$folder.'testpath1.css'=>array(),
+			$folder.'testpath2.css'=>array(),
+			$folder.'testpath3.css'=>array(),
+			$folder.'testpath4.css'=>array(),
+		);
+		$args = array('jsLibs'=>&$jsLibs,'jsFiles'=>&$jsFiles,'jsFooterFiles'=>&$jsFooterFiles,'cssFiles'=>&$cssFiles);
+		$this->concatenateHandler->process($args);
+		$this->assertEquals(1,count($cssFiles));
+		foreach (array_keys($cssFiles) as $cssFile){
+			$path = PATH_site . $cssFile;
+			$this->assertTrue(file_exists($path));
+			$content = file_get_contents($path);
+			$this->assertContains('/fixtures/../images/test1.gif',$content);
+			$this->assertContains('/fixtures/images/test2.gif',$content);
+			$this->assertContains('/fixtures/test3.gif',$content);
+			$this->assertContains('/fixtures/../../images/test4.gif',$content);
+		}
+	}
 	/**
 	 * clean up
 	 * @return void

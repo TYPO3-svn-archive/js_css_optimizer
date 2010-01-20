@@ -55,12 +55,28 @@ abstract class tx_js_css_optimizer_hooks {
 	 * @throws Exception
 	 */
 	protected function getFileContent($file){
+		if (substr($file, 0, 4) == 'EXT:') { // extension
+			list($extKey, $local) = explode('/', substr($file, 4), 2);
+			if (strcmp($extKey, '') && t3lib_extMgm::isLoaded($extKey) && strcmp($local, '')) {
+				$file = t3lib_extMgm::siteRelPath($extKey) . $local;
+			}
+		}
 		$path = PATH_site.DIRECTORY_SEPARATOR.$file;
+		
 		if(!file_exists($path)){
 			throw new Exception('file not found: '.$path);	
 		}
 		return file_get_contents($path);
 		
+	}
+	/**
+	 * Get the path of an recource
+	 * @param string $path
+	 * @return string
+	 */
+	private function getRecourcePath($path){
+		
+		return $path;
 	}
 	/**
 	 * @param string $baseFolder
