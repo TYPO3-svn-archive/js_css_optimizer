@@ -98,6 +98,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 			$folder.'testpath2.css'=>array(),
 			$folder.'testpath3.css'=>array(),
 			$folder.'testpath4.css'=>array(),
+			$folder.'testpath5.css'=>array(),
 		);
 		$args = array('jsLibs'=>&$jsLibs,'jsFiles'=>&$jsFiles,'jsFooterFiles'=>&$jsFooterFiles,'cssFiles'=>&$cssFiles);
 		$this->concatenateHandler->process($args);
@@ -109,6 +110,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 			$this->assertContains('/fixtures/../images/test1.gif',$content);
 			$this->assertContains('/fixtures/images/test2.gif',$content);
 			$this->assertContains('/fixtures/test3.gif',$content);
+			$this->assertContains('/fixtures/test5.gif',$content);
 			$this->assertContains('/fixtures/../../images/test4.gif',$content);
 		}
 	}

@@ -87,9 +87,12 @@ abstract class tx_js_css_optimizer_hooks {
 		if(substr($baseFolder,0,1) !== '/'){
 			$baseFolder = '/'.$baseFolder;
 		}
-		$content =  preg_replace('/url[ ]*\([ ]*[\.\.\/]{3}([\w]+\.[\w]+)/i', 'url('.$baseFolder.'/$1', $content ); // background: url(../test3.gif);
-		$content =  preg_replace('/url[ ]*\([ ]*([a-z|0-9|_|-]+)/i', 'url('.$baseFolder.'/$1', $content ); // background: url(images/test2.gif); 
-		$content =  preg_replace('/url[ ]*\([ ]*([\.\.\/]{3})([\.\.\/]*)/i', 'url('.$baseFolder.'/$1$2', $content ); //background: url(../images/test1.gif);  or background: url(../../images/test4.gif);
+		var_dump($baseFolder);
+		exit();
+		$content =  preg_replace('/url[ ]*\([ ]*[\']*[\.\.\/]{3}([\w]+\.[\w]+[\']*)/i', 'url('.$baseFolder.'/$1', $content ); // background: url(../test3.gif);
+		
+		$content =  preg_replace('/url[ ]*\([ ]*[\']*([a-z|0-9|_|-]+[\']*)/i', 'url('.$baseFolder.'/$1', $content ); // background: url(images/test2.gif); 
+		$content =  preg_replace('/url[ ]*\([ ]*[\']*([\.\.\/]{3})([\.\.\/]*[\']*)/i', 'url('.$baseFolder.'/$1$2', $content ); //background: url(../images/test1.gif);  or background: url(../../images/test4.gif);
 		return $content;
 	}
 }
