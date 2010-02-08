@@ -87,8 +87,6 @@ abstract class tx_js_css_optimizer_hooks {
 		if(substr($baseFolder,0,1) !== '/'){
 			$baseFolder = '/'.$baseFolder;
 		}
-		var_dump($baseFolder);
-		exit();
 		$content =  preg_replace('/url[ ]*\([ ]*[\']*[\.\.\/]{3}([\w]+\.[\w]+[\']*)/i', 'url('.$baseFolder.'/$1', $content ); // background: url(../test3.gif);
 		
 		$content =  preg_replace('/url[ ]*\([ ]*[\']*([a-z|0-9|_|-]+[\']*)/i', 'url('.$baseFolder.'/$1', $content ); // background: url(images/test2.gif); 
