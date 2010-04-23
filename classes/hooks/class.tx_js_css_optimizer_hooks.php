@@ -45,6 +45,7 @@ abstract class tx_js_css_optimizer_hooks {
 			if(false === file_put_contents($path,$content)){
 				throw new Exception('clould not create the cache file');
 			}
+			t3lib_div::fixPermissions($path);
 		}
 		return 'typo3temp/js_css_optimizer/'.$name;
 	}
@@ -66,6 +67,7 @@ abstract class tx_js_css_optimizer_hooks {
 		if(!file_exists($path)){
 			throw new Exception('file not found: '.$path);	
 		}
+		t3lib_div::fixPermissions($path);
 		return file_get_contents($path);
 		
 	}
