@@ -10,6 +10,7 @@
 require_once (dirname ( __FILE__ ) . DIRECTORY_SEPARATOR . 'class.tx_js_css_optimizer_hooks.php');
 /**
  * Hook to bundle the js and css files
+ * @package js_css_optimizer
  */
 class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_hooks {
 	/**
@@ -31,12 +32,16 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 		}
 		if($conf ['bundle_css']){
 			if (count ( $args ['cssFiles'] ) > 0) {
-				$this->createNewCssBundle ( $args ['cssFiles'], $this->getFileName($args ['cssFiles'],'_bundled_cssFiles.css') );
+				$charsetCSS = null;
+				if(isset($conf ['charsetCSS']) && !empty($conf ['charsetCSS'])){
+					$charsetCSS = $conf ['charsetCSS'];
+				}
+				$this->createNewCssBundle ( $args ['cssFiles'], $this->getFileName($args ['cssFiles'],'_bundled_cssFiles.css'),$charsetCSS );
 			}
 		}
 	}
 	/**
-	 * @param array $files
+	 * @param array &$files
 	 * @param string $filename
 	 * @return string
 	 */
@@ -44,7 +49,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 		return md5 ( serialize ( $files ) ) . $filename;
 	}
 	/**
-	 * @param array $files
+	 * @param array &$files
 	 * @param string $filename
 	 * @return void
 	 */
@@ -65,24 +70,35 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 		$files ['bundledLib'] = array ('file' => $newFile, 'type' => 'text/javascript', 'section' => t3lib_PageRenderer::PART_HEADER, 'compressed' => false, 'forceOnTop' => false, 'allWrap' => '' );
 	}
 	/**
-	 * 
-	 * @param array $files
+	 * @param array &$files
 	 * @param string $filename
+	 * @param string $charsetCSS
 	 * @return void
 	 */
-	private function createNewCssBundle(array &$files, $filename) {
+	private function createNewCssBundle(array &$files, $filename,$charsetCSS = null) {
 		$content = '';
 		foreach ( $files as $file => $meta ) {
 			$filecontent = $this->getFileContent ( $file );
 			$content .= $this->fixRelativeCssPaths(dirname($file),$filecontent);
 			unset ( $files [$file] );
 		}
+		$matches = array();
+		if(preg_match_all('/@charset.*;/i',$content,$matches)){
+			if(count($matches[0])>1 || FALSE === is_null($charsetCSS)){
+				foreach($matches[0] as $match){
+					$content = str_replace($match,'',$content);
+				}
+			}
+		}
+		if(!preg_match('/@charset.*;/i',$content) && FALSE === is_null($charsetCSS)){
+			$content = '@charset "'.$charsetCSS.'";'.PHP_EOL.$content;
+		}
 		$newFile = $this->createCacheFile ( $filename, $content );
 		$files [$newFile] = $meta;
 	}
+	
 	/**
-	 * 
-	 * @param array $files
+	 * @param array &$files
 	 * @param string $filename
 	 * @return void
 	 */

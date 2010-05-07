@@ -30,3 +30,5 @@ css_level = CSS2.1
 preserve_css = 0
 	# cat=basic//10; type=boolean; label=timestamp
 timestamp = 0
+# cat=basic//10; type=input; label=charset for the bundled CSS
+charsetCSS = 
