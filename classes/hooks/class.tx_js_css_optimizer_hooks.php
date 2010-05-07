@@ -9,6 +9,7 @@
  ***************************************************************/
 /**
  * Main class for all hooks
+ * @package js_css_optimize
  */
 abstract class tx_js_css_optimizer_hooks {
 	/**
@@ -50,7 +51,6 @@ abstract class tx_js_css_optimizer_hooks {
 		return 'typo3temp/js_css_optimizer/'.$name;
 	}
 	/**
-	 * 
 	 * @param string $file
 	 * @return string
 	 * @throws Exception
@@ -87,11 +87,9 @@ abstract class tx_js_css_optimizer_hooks {
 	 */
 	protected function fixRelativeCssPaths($baseFolder, $content){
 		$root = t3lib_div::getIndpEnv('TYPO3_SITE_PATH');
-
 		if(empty($root)){
-			throw new Exception('Could not find TYPO3 root path.');
+			$root = '/';
 		}
-
 		$baseFolder = t3lib_div::resolveBackPath($root . $baseFolder);
 
 		$content =  preg_replace('/url[ ]*\([ ]*[\']*[\.\.\/]{3}([\w]+\.[\w]+)/i', 'url('.$baseFolder.'/$1', $content ); // background: url(../test3.gif);
