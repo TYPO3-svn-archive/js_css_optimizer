@@ -83,7 +83,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 			unset ( $files [$file] );
 		}
 		$matches = array();
-		if(preg_match_all('/@charset.*;/i',$content,$matches)){
+		if(preg_match_all('/@charset.*?;/i',$content,$matches)){
 			if(count($matches[0])>1 || FALSE === is_null($charsetCSS)){
 				foreach($matches[0] as $match){
 					$content = str_replace($match,'',$content);
