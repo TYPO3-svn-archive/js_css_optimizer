@@ -1,0 +1,5 @@
+<phpunit colors="true">
+	<testsuite name="js_css_optimizer_tests">
+		<directory suffix="testcase.php">./</directory>
+	</testsuite>
+</phpunit>
