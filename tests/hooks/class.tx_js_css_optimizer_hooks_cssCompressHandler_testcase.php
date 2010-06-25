@@ -39,12 +39,15 @@ class tx_js_css_optimizer_hooks_cssCompressHandler_testcase extends tx_phpunit_t
 			),
 		);
 		$cssFiles = array(
-			$folder.'test1.css'=>array(),
-			$folder.'test2.css'=>array(),
+			$folder.'test1.css'=>array('compress'=>true),
+			$folder.'test2.css'=>array('compress'=>true),
 		);
 		$this->cssCompressHandler->process(array('cssInline'=>&$cssInline,'cssFiles'=>&$cssFiles));
-		
+		foreach($cssFiles as $file =>$meta){
+			$this->assertFileExists(PATH_site.'/'.$file);
+		}
 	}
+	
 	/**
 	 * clean up
 	 * @return void
