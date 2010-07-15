@@ -30,7 +30,8 @@ class tx_js_css_optimizer_hooks_jsCompressHandler extends tx_js_css_optimizer_ho
 		$jsFooterFiles = array();
 		foreach ($args['jsFooterFiles'] as $file => $meta ) {
 			if($meta['compress']){
-				$newFile = $this->createCacheFile ( '_compressed_'.sha1($file).'_'.basename($file), $jsOptimizer->compress($this->getFileContent ( $file )) );
+				$content = $this->getFileContent ( $file );
+				$newFile = $this->createCacheFile ( '_compressed_'.sha1($content).'_'.basename($file), $jsOptimizer->compress($content) );
 				$jsFooterFiles [$newFile]  = $meta;
 				unset ( $args['jsFooterFiles'] [$file] );
 			}
@@ -41,7 +42,8 @@ class tx_js_css_optimizer_hooks_jsCompressHandler extends tx_js_css_optimizer_ho
 		$jsFiles = array();
 		foreach ($args['jsFiles'] as $file => $meta ) {
 			if($meta['compress'] && ! isset($args['jsFooterFiles'][$file])){
-				$newFile = $this->createCacheFile ( '_compressed_'.sha1($file).'_'.basename($file), $jsOptimizer->compress($this->getFileContent ( $file )) );
+				$content = $this->getFileContent ( $file );
+				$newFile = $this->createCacheFile ( '_compressed_'.sha1($content).'_'.basename($file), $jsOptimizer->compress($content) );
 				$jsFiles [$newFile]  = $meta;
 				unset ( $args['jsFiles'] [$file] );
 			}
@@ -52,7 +54,8 @@ class tx_js_css_optimizer_hooks_jsCompressHandler extends tx_js_css_optimizer_ho
 		foreach ($args['jsLibs'] as $libName => $meta ) {
 			if($meta['compress']){
 				$file = $meta['file'];
-				$newFile = $this->createCacheFile ( '_compressed_'.sha1($file).'_'.basename($file), $jsOptimizer->compress($this->getFileContent ($file )) );
+				$content = $this->getFileContent ( $file );
+				$newFile = $this->createCacheFile ( '_compressed_'.sha1($content).'_'.basename($file), $jsOptimizer->compress($content) );
 				$args['jsLibs'] [$libName]['file']  = $newFile;
 			}
 		}

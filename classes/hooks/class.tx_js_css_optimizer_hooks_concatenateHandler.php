@@ -46,7 +46,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	 * @return string
 	 */
 	private function getFileName(array &$files, $filename){
-		return md5 ( serialize ( $files ) ) . $filename;
+		return sha1 ( serialize ( $files ) ) . $filename;
 	}
 	/**
 	 * @param array &$files

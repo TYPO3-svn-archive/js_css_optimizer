@@ -40,13 +40,17 @@ abstract class tx_js_css_optimizer_hooks {
 		$name = $this->getPrefix().$name;
 		$path = $this->getCacheFolder().$name;
 		if (!is_dir($this->getCacheFolder())){ 
-      		t3lib_div::mkdir ($this->getCacheFolder());
-     	}
+			t3lib_div::mkdir ($this->getCacheFolder());
+		}
 		if(false === file_exists($path)){
-			if(false === file_put_contents($path,$content)){
+			$temp_file = $path.'.tmp';
+			if(false === file_put_contents($temp_file,$content)){ 
 				throw new Exception('clould not create the cache file');
 			}
-			t3lib_div::fixPermissions($path);
+			t3lib_div::fixPermissions($temp_file);
+			if(false === rename($temp_file,$path)){
+				throw new Exception('clould not rename the cache file');
+			}
 		}
 		return 'typo3temp/js_css_optimizer/'.$name;
 	}
@@ -68,7 +72,11 @@ abstract class tx_js_css_optimizer_hooks {
 			throw new Exception('file not found: '.$path);	
 		}
 		t3lib_div::fixPermissions($path);
-		return file_get_contents($path);
+		$content = file_get_contents($path);
+		if(FALSE === $content){
+			throw new Exception('could not read file: '.$path);	
+		}
+		return $content;
 		
 	}
 	/**
@@ -77,7 +85,6 @@ abstract class tx_js_css_optimizer_hooks {
 	 * @return string
 	 */
 	private function getRecourcePath($path){
-		
 		return $path;
 	}
 	/**
