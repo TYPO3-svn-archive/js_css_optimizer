@@ -21,13 +21,13 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 		$conf = unserialize ( $GLOBALS ['TYPO3_CONF_VARS'] ['EXT'] ['extConf'] ['js_css_optimizer'] );
 		if($conf ['bundle_js'] ){
 			if (count ( $args ['jsLibs'] ) > 0) {
-				$this->createNewJsLibBundle ( $args ['jsLibs'], $this->getFileName($args ['jsLibs'],'_bundled_jsLibs.js') );
+				$this->createNewJsLibBundle ( $args ['jsLibs'], '_bundled_jsLibs.js' );
 			}
 			if (count ( $args ['jsFiles'] ) > 0) {
-				$this->createNewJsBundle ( $args ['jsFiles'], $this->getFileName($args ['jsFiles'],'_bundled_jsFiles.js') );
+				$this->createNewJsBundle ( $args ['jsFiles'], '_bundled_jsFiles.js');
 			}
 			if (count ( $args ['jsFooterFiles'] ) > 0) {
-				$this->createNewJsBundle ( $args ['jsFooterFiles'], $this->getFileName($args ['jsFooterFiles'],'_bundled_jsFooterFiles.js') );
+				$this->createNewJsBundle ( $args ['jsFooterFiles'], '_bundled_jsFooterFiles.js' );
 			}
 		}
 		if($conf ['bundle_css']){
@@ -36,7 +36,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 				if(isset($conf ['charsetCSS']) && !empty($conf ['charsetCSS'])){
 					$charsetCSS = $conf ['charsetCSS'];
 				}
-				$this->createNewCssBundle ( $args ['cssFiles'], $this->getFileName($args ['cssFiles'],'_bundled_cssFiles.css'),$charsetCSS );
+				$this->createNewCssBundle ( $args ['cssFiles'], '_bundled_cssFiles.css',$charsetCSS );
 			}
 		}
 	}
@@ -73,7 +73,8 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 				}
 			}
 		}
-		$newFile = $this->createCacheFile ( $filename, $topContent.$content );
+		$content = $topContent.$content;
+		$newFile = $this->createCacheFile ( sha1($content).$filename, $content );
 		$files ['bundledLib'] = array ('file' => $newFile, 'type' => 'text/javascript', 'section' => t3lib_PageRenderer::PART_HEADER, 'compressed' => false, 'forceOnTop' => false, 'allWrap' => '' );
 		foreach($jsFilesOnBottom as $name => $meta){
 			$files [$name] = $meta;
@@ -119,7 +120,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 			$content .= $filecontent;
 			unset ( $files [$file] );
 		}
-		$newFile = $this->createCacheFile ( $filename, $content );
+		$newFile = $this->createCacheFile ( sha1($content).$filename, $content );
 		$files [$newFile] = $meta;
 	}
 }
