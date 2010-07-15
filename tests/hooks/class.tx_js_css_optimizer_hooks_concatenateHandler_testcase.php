@@ -148,7 +148,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 			$path = PATH_site . $cssFile;
 			$this->assertTrue ( file_exists ( $path ) );
 			$content = file_get_contents ( $path );
-			$this->assertContains ( '@charset', $content );
+			$this->assertContains ( '@charset', $content ,$path);
 		}
 	}
 	/**

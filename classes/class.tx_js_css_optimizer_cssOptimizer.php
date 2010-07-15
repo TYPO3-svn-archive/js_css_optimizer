@@ -17,14 +17,9 @@ class tx_js_css_optimizer_cssOptimizer {
 	 */
 	private $csstidy;
 	/**
-	 * 
-	 * @var tx_js_css_optimizer_cssOptimizer
-	 */
-	private static $instance = null;
-	/**
 	 * contructor
 	 */
-	private function __construct() {
+	public function __construct() {
 		$conf = unserialize ( $GLOBALS ['TYPO3_CONF_VARS'] ['EXT'] ['extConf'] ['js_css_optimizer'] );
 		$this->csstidy = new csstidy ( );
 		$this->csstidy->set_cfg ( 'remove_bslash', ( boolean ) $conf ['remove_bslash'] );
@@ -44,20 +39,10 @@ class tx_js_css_optimizer_cssOptimizer {
 	
 	}
 	/**
-	 * @return tx_js_css_optimizer_cssOptimizer
-	 */
-	static public function getInstance() {
-		if (null === self::$instance) {
-			self::$instance = new self ( );
-		}
-		return self::$instance;
-	}
-	/**
 	 * @param string $content
 	 * @return string
 	 */
 	public function compress($content) {
-
 		if(true !== $this->csstidy->parse ( $content )){
 			throw new Exception('could not parse css');
 		}

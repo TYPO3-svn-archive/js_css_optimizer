@@ -20,7 +20,7 @@ class tx_js_css_optimizer_hooks_cssCompressHandler  extends tx_js_css_optimizer_
 	 * @return void
 	 */
 	public function process(array $args) {
-		$cssOptimizer = tx_js_css_optimizer_cssOptimizer::getInstance();
+		$cssOptimizer = new tx_js_css_optimizer_cssOptimizer();
 		foreach ($args['cssInline'] as $name=>$meta){
 			$args['cssInline'][$name]['code'] = $cssOptimizer->compress($meta['code']);
 		}

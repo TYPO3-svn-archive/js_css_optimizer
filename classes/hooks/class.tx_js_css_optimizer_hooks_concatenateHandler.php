@@ -104,7 +104,8 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 		if(!preg_match('/@charset.*;/i',$content) && FALSE === is_null($charsetCSS)){
 			$content = '@charset "'.$charsetCSS.'";'.PHP_EOL.$content;
 		}
-		$newFile = $this->createCacheFile ( $filename, $content );
+		
+		$newFile = $this->createCacheFile (sha1($content). $filename, $content );
 		$files [$newFile] = $meta;
 	}
 	

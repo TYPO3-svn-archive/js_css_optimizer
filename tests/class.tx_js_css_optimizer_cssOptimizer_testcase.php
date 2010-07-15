@@ -22,13 +22,14 @@ class tx_js_css_optimizer_cssOptimizer_testcase extends tx_phpunit_testcase {
 	 * @return void
 	 */
 	protected function setUp(){
-		$this->cssOptimizer = tx_js_css_optimizer_cssOptimizer::getInstance();
+		$this->cssOptimizer = new tx_js_css_optimizer_cssOptimizer();
 	}
 	/**
 	 * Test method compressCss
 	 * @return void
 	 */
 	public function test_compress(){
+		
 		$css = file_get_contents(t3lib_extMgm::extPath('js_css_optimizer').'tests/fixtures/test.css');
 		$output = $this->cssOptimizer->compress($css);
 		$this->assertNotNull($output);
