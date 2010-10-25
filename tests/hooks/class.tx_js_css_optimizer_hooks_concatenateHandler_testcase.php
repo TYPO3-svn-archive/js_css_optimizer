@@ -186,6 +186,24 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 	
 	}
 	/**
+	 * Test the method splitCssFilesMediaTypes
+	 */
+	public function test_splitCssFilesMediaTypes(){
+		$folder = 'EXT:js_css_optimizer/tests/hooks/fixtures/';
+		$jsLibs = array ();
+		$jsFiles = array ();
+		$jsFooterFiles = array ();
+		$cssFiles = array ($folder . 'test_charset1.css' => array ('media'=>'screen'), $folder . 'test_charset2.css' => array ('media'=>'print'), $folder . 'test_charset3.css' => array ('media'=>'screen') );
+		$args = array ('jsLibs' => &$jsLibs, 'jsFiles' => &$jsFiles, 'jsFooterFiles' => &$jsFooterFiles, 'cssFiles' => &$cssFiles );
+		$this->concatenateHandler->process ( $args );
+		$this->assertEquals ( 2, count ( $cssFiles ) );
+		foreach ( array_keys ( $cssFiles ) as $cssFile ) {
+			$path = PATH_site . $cssFile;
+			$this->assertTrue ( file_exists ( $path ) );
+			$content = file_get_contents ( $path );
+		}
+	}
+	/**
 	 * clean up
 	 * @return void
 	 */

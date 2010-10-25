@@ -1,11 +1,11 @@
 <?php
 /***************************************************************
- *  Copyright notice
+ * Copyright notice
  *
- *  (c) 2009 AOE media GmbH <dev@aoemedia.de>
- *  All rights reserved
+ * (c) 2009 AOE media GmbH <dev@aoemedia.de>
+ * All rights reserved
  *
- *  This copyright notice MUST APPEAR in all copies of the script!
+ * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 require_once (dirname ( __FILE__ ) . DIRECTORY_SEPARATOR . 'class.tx_js_css_optimizer_hooks.php');
 /**
@@ -19,33 +19,50 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	 */
 	public function process(array $args) {
 		$conf = unserialize ( $GLOBALS ['TYPO3_CONF_VARS'] ['EXT'] ['extConf'] ['js_css_optimizer'] );
-		if($conf ['bundle_js'] ){
+		if ($conf ['bundle_js']) {
 			if (count ( $args ['jsLibs'] ) > 0) {
 				$this->createNewJsLibBundle ( $args ['jsLibs'], '_bundled_jsLibs.js' );
 			}
 			if (count ( $args ['jsFiles'] ) > 0) {
-				$this->createNewJsBundle ( $args ['jsFiles'], '_bundled_jsFiles.js');
+				$this->createNewJsBundle ( $args ['jsFiles'], '_bundled_jsFiles.js' );
 			}
 			if (count ( $args ['jsFooterFiles'] ) > 0) {
 				$this->createNewJsBundle ( $args ['jsFooterFiles'], '_bundled_jsFooterFiles.js' );
 			}
 		}
-		if($conf ['bundle_css']){
+		if ($conf ['bundle_css']) {
 			if (count ( $args ['cssFiles'] ) > 0) {
 				$charsetCSS = null;
-				if(isset($conf ['charsetCSS']) && !empty($conf ['charsetCSS'])){
+				if (isset ( $conf ['charsetCSS'] ) && ! empty ( $conf ['charsetCSS'] )) {
 					$charsetCSS = $conf ['charsetCSS'];
 				}
-				$this->createNewCssBundle ( $args ['cssFiles'], '_bundled_cssFiles.css',$charsetCSS );
+				foreach ( $this->splitCssFilesMediaTypes ( $args ['cssFiles'] ) as $mediaType => $files ) {
+					$this->createNewCssBundle ( $files, $mediaType . '_bundled_cssFiles.css', $charsetCSS, $args ['cssFiles'] );
+				}
 			}
 		}
+	}
+	/**
+	 * @param array &$cssFiles
+	 * @return array
+	 */
+	private function splitCssFilesMediaTypes(array &$cssFiles) {
+		$cssFilesSplitted = array ();
+		foreach ( $cssFiles as $file => $meta ) {
+			if (! isset ( $cssFilesSplitted [$meta ['media']] )) {
+				$cssFilesSplitted [$meta ['media']] = array ();
+			}
+			$cssFilesSplitted [$meta ['media']] [$file] = $meta;
+			unset ( $cssFiles [$file] );
+		}
+		return $cssFilesSplitted;
 	}
 	/**
 	 * @param array &$files
 	 * @param string $filename
 	 * @return string
 	 */
-	private function getFileName(array &$files, $filename){
+	private function getFileName(array &$files, $filename) {
 		return sha1 ( serialize ( $files ) ) . $filename;
 	}
 	/**
@@ -56,27 +73,27 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	private function createNewJsLibBundle(array &$files, $filename) {
 		$topContent = '';
 		$content = '';
-		$jsFilesOnBottom = array();
+		$jsFilesOnBottom = array ();
 		foreach ( $files as $name => $meta ) {
-			if(empty($meta['allWrap'])){
+			if (empty ( $meta ['allWrap'] )) {
 				$filecontent = $this->getFileContent ( $meta ['file'] );
-				if($meta['forceOnTop']){
+				if ($meta ['forceOnTop']) {
 					$topContent .= $filecontent;
-				}else{
+				} else {
 					$content .= $filecontent;
 				}
 				unset ( $files [$name] );
-			}else{
-				if(!$meta['forceOnTop']){
-					$jsFilesOnBottom[$name] = $files [$name] ;
+			} else {
+				if (! $meta ['forceOnTop']) {
+					$jsFilesOnBottom [$name] = $files [$name];
 					unset ( $files [$name] );
 				}
 			}
 		}
-		$content = $topContent.$content;
-		$newFile = $this->createCacheFile ( sha1($content).$filename, $content );
+		$content = $topContent . $content;
+		$newFile = $this->createCacheFile ( sha1 ( $content ) . $filename, $content );
 		$files ['bundledLib'] = array ('file' => $newFile, 'type' => 'text/javascript', 'section' => t3lib_PageRenderer::PART_HEADER, 'compressed' => false, 'forceOnTop' => false, 'allWrap' => '' );
-		foreach($jsFilesOnBottom as $name => $meta){
+		foreach ( $jsFilesOnBottom as $name => $meta ) {
 			$files [$name] = $meta;
 		}
 	}
@@ -84,29 +101,28 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	 * @param array &$files
 	 * @param string $filename
 	 * @param string $charsetCSS
+	 * @param string &$cssfiles
 	 * @return void
 	 */
-	private function createNewCssBundle(array &$files, $filename,$charsetCSS = null) {
+	private function createNewCssBundle(array $files, $filename, $charsetCSS = null, array &$cssfiles) {
 		$content = '';
 		foreach ( $files as $file => $meta ) {
 			$filecontent = $this->getFileContent ( $file );
-			$content .= $this->fixRelativeCssPaths(dirname($file),$filecontent);
-			unset ( $files [$file] );
+			$content .= $this->fixRelativeCssPaths ( dirname ( $file ), $filecontent );
 		}
-		$matches = array();
-		if(preg_match_all('/@charset.*?;/i',$content,$matches)){
-			if(count($matches[0])>1 || FALSE === is_null($charsetCSS)){
-				foreach($matches[0] as $match){
-					$content = str_replace($match,'',$content);
+		$matches = array ();
+		if (preg_match_all ( '/@charset.*?;/i', $content, $matches )) {
+			if (count ( $matches [0] ) > 1 || FALSE === is_null ( $charsetCSS )) {
+				foreach ( $matches [0] as $match ) {
+					$content = str_replace ( $match, '', $content );
 				}
 			}
 		}
-		if(!preg_match('/@charset.*;/i',$content) && FALSE === is_null($charsetCSS)){
-			$content = '@charset "'.$charsetCSS.'";'.PHP_EOL.$content;
+		if (! preg_match ( '/@charset.*;/i', $content ) && FALSE === is_null ( $charsetCSS )) {
+			$content = '@charset "' . $charsetCSS . '";' . PHP_EOL . $content;
 		}
-		
-		$newFile = $this->createCacheFile (sha1($content). $filename, $content );
-		$files [$newFile] = $meta;
+		$newFile = $this->createCacheFile ( sha1 ( $content ) . $filename, $content );
+		$cssfiles [$newFile] = $meta;
 	}
 	
 	/**
@@ -121,7 +137,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 			$content .= $filecontent;
 			unset ( $files [$file] );
 		}
-		$newFile = $this->createCacheFile ( sha1($content).$filename, $content );
+		$newFile = $this->createCacheFile ( sha1 ( $content ) . $filename, $content );
 		$files [$newFile] = $meta;
 	}
 }
