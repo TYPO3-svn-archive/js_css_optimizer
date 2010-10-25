@@ -3,7 +3,7 @@
 ########################################################################
 # Extension Manager/Repository config file for ext "js_css_optimizer".
 #
-# Auto generated 25-10-2010 11:53
+# Auto generated 25-10-2010 11:55
 #
 # Manual updates:
 # Only the data in the array - everything else is removed by next
@@ -29,7 +29,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'clearCacheOnLoad' => 0,
 	'lockType' => '',
 	'author_company' => 'AOE Media',
-	'version' => '1.1.3',
+	'version' => '1.1.4',
 	'constraints' => array(
 		'depends' => array(
 			'php' => '5.1.0-0.0.0',
