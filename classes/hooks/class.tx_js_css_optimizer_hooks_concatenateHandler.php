@@ -37,7 +37,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 					$charsetCSS = $conf ['charsetCSS'];
 				}
 				foreach ( $this->splitCssFilesMediaTypes ( $args ['cssFiles'] ) as $mediaType => $files ) {
-					$this->createNewCssBundle ( $files, $mediaType . '_bundled_cssFiles.css', $charsetCSS, $args ['cssFiles'] );
+					$this->createNewCssBundle ( $files, '_'.$mediaType . '_bundled_cssFiles.css', $charsetCSS, $args ['cssFiles'] );
 				}
 			}
 		}
@@ -49,10 +49,11 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	private function splitCssFilesMediaTypes(array &$cssFiles) {
 		$cssFilesSplitted = array ();
 		foreach ( $cssFiles as $file => $meta ) {
-			if (! isset ( $cssFilesSplitted [$meta ['media']] )) {
-				$cssFilesSplitted [$meta ['media']] = array ();
+			$index = md5($meta ['media'].$meta ['allWrap'].$meta ['rel']);
+			if (! isset ( $cssFilesSplitted [$index] )) {
+				$cssFilesSplitted [$index] = array ();
 			}
-			$cssFilesSplitted [$meta ['media']] [$file] = $meta;
+			$cssFilesSplitted [$index] [$file] = $meta;
 			unset ( $cssFiles [$file] );
 		}
 		return $cssFilesSplitted;
