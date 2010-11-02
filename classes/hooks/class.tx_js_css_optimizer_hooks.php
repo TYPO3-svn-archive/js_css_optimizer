@@ -52,7 +52,11 @@ abstract class tx_js_css_optimizer_hooks {
 				throw new Exception('clould not rename the cache file');
 			}
 		}
-		return 'typo3temp/js_css_optimizer/'.$name;
+		$file = 'typo3temp/js_css_optimizer/'.$name;
+		if(isset($GLOBALS['TSFE']) && isset($GLOBALS['TSFE']->absRefPrefix)){
+			$file  = $GLOBALS['TSFE']->absRefPrefix .$file;
+		}
+		return $file;
 	}
 	/**
 	 * @param string $file
