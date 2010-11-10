@@ -70,8 +70,8 @@ abstract class tx_js_css_optimizer_hooks {
 				$file = t3lib_extMgm::siteRelPath($extKey) . $local;
 			}
 		}
-		$path = PATH_site.DIRECTORY_SEPARATOR.$file;
-		
+		$path = t3lib_div::resolveBackPath(PATH_site.DIRECTORY_SEPARATOR . $file);
+
 		if(!file_exists($path)){
 			throw new Exception('file not found: '.$path);	
 		}
