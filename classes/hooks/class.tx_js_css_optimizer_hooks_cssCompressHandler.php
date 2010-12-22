@@ -25,18 +25,17 @@ class tx_js_css_optimizer_hooks_cssCompressHandler  extends tx_js_css_optimizer_
 			$args['cssInline'][$name]['code'] = $cssOptimizer->compress($meta['code']);
 		}
 		$cssFiles = array();
-		foreach ($args['cssFiles'] as $file => $meta ) {
-			if($meta['compress']){
-				$filecontent = $this->getFileContent ( $file );
-				$filecontent = $this->fixRelativeCssPaths(dirname($file),$filecontent);
-				$newFile = $this->createCacheFile ( '_compressed_'.sha1($filecontent).'_'.basename($file), $cssOptimizer->compress($filecontent) );
-				$cssFiles[$newFile]  = $meta;
-				unset ( $args['cssFiles'][$file] );
-			}
+		foreach ($args['cssFiles'] as $file => $meta) {
+			if ($meta['compress']) {
+				$filecontent = $this->getFileContent($file);
+				$filecontent = $this->fixRelativeCssPaths(dirname($file), $filecontent);
+				$newFile = $this->createCacheFile( '_compressed_' . sha1($filecontent) . '_' . basename($file), $cssOptimizer->compress($filecontent));
+				$cssFiles[$newFile] = $meta;
+			} else {
+				$cssFiles[$file] = $meta;
+				}
 		}
-		foreach ($cssFiles as $file => $meta){
-			$args['cssFiles'][$file] = $meta;
-		}
+		$args['cssFiles'] = $cssFiles;
 	}
 	
 }
