@@ -1,2 +1,0 @@
-alert('ddd'):
-// comment
