@@ -42,29 +42,65 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 			}
 		}
 	}
+
 	/**
-	 * @param array &$cssFiles
-	 * @return array
+	 * @param	string	$file
+	 * @param	string	$filecontent
+	 * @return	string
 	 */
-	private function splitCssFilesMediaTypes(array &$cssFiles) {
-		$cssFilesSplitted = array ();
-		foreach ( $cssFiles as $file => $meta ) {
-			$index = md5($meta ['media'].$meta ['allWrap'].$meta ['rel']);
-			if (! isset ( $cssFilesSplitted [$index] )) {
-				$cssFilesSplitted [$index] = array ();
-			}
-			$cssFilesSplitted [$index] [$file] = $meta;
-			unset ( $cssFiles [$file] );
+	protected function getFileName($file, $filecontent) {
+		return sha1 ( $filecontent ) . $file;
+	}
+
+	/**
+	 * @param array &$files
+	 * @param string $filename
+	 * @param string $charsetCSS
+	 * @param string &$cssfiles
+	 * @return void
+	 */
+	private function createNewCssBundle(array $files, $filename, $charsetCSS = null, array &$cssfiles) {
+		$content = '';
+		foreach ( $files as $file => $meta ) {
+			$filecontent = $this->getFileContent ( $file );
+			$content .= $this->fixRelativeCssPaths ( dirname ( $file ), $filecontent );
 		}
-		return $cssFilesSplitted;
+		$matches = array ();
+		if (preg_match_all ( '/@charset.*?;/i', $content, $matches )) {
+			if (count ( $matches [0] ) > 1 || FALSE === is_null ( $charsetCSS )) {
+				foreach ( $matches [0] as $match ) {
+					$content = str_replace ( $match, '', $content );
+				}
+			}
+		}
+		if (! preg_match ( '/@charset.*;/i', $content ) && FALSE === is_null ( $charsetCSS )) {
+			$content = '@charset "' . $charsetCSS . '";' . PHP_EOL . $content;
+		}
+		$newFileName = sha1 ( $content ) . $filename;
+		if($this->hasCacheFile($newFileName) === FALSE) {
+			$this->createCacheFile( $newFileName, $content );
+		}
+		$newFile = $this->getCacheFilePath( $newFileName );
+		$cssfiles [$newFile] = $meta;
 	}
 	/**
 	 * @param array &$files
 	 * @param string $filename
-	 * @return string
+	 * @return void
 	 */
-	private function getFileName(array &$files, $filename) {
-		return sha1 ( serialize ( $files ) ) . $filename;
+	private function createNewJsBundle(array &$files, $filename) {
+		$content = '';
+		foreach ( $files as $file => $meta ) {
+			$filecontent = $this->getFileContent ( $file );
+			$content .= $filecontent;
+			unset ( $files [$file] );
+		}
+		$newFileName = $this->getFileName($filename, $content);
+		if($this->hasCacheFile($newFileName) === FALSE) {
+			$this->createCacheFile( $newFileName, $content );
+		}
+		$newFile = $this->getCacheFilePath( $newFileName );
+		$files [$newFile] = $meta;
 	}
 	/**
 	 * @param array &$files
@@ -92,53 +128,31 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 			}
 		}
 		$content = $topContent . $content;
-		$newFile = $this->createCacheFile ( sha1 ( $content ) . $filename, $content );
+		$newFileName = sha1 ( $content ) . $filename;
+		if($this->hasCacheFile($newFileName) === FALSE) {
+			$this->createCacheFile( $newFileName, $content );
+		}
+		$newFile = $this->getCacheFilePath( $newFileName );
 		$files ['bundledLib'] = array ('file' => $newFile, 'type' => 'text/javascript', 'section' => t3lib_PageRenderer::PART_HEADER, 'compressed' => false, 'forceOnTop' => false, 'allWrap' => '' );
 		foreach ( $jsFilesOnBottom as $name => $meta ) {
 			$files [$name] = $meta;
 		}
-	}
+	}	
+
 	/**
-	 * @param array &$files
-	 * @param string $filename
-	 * @param string $charsetCSS
-	 * @param string &$cssfiles
-	 * @return void
+	 * @param array &$cssFiles
+	 * @return array
 	 */
-	private function createNewCssBundle(array $files, $filename, $charsetCSS = null, array &$cssfiles) {
-		$content = '';
-		foreach ( $files as $file => $meta ) {
-			$filecontent = $this->getFileContent ( $file );
-			$content .= $this->fixRelativeCssPaths ( dirname ( $file ), $filecontent );
-		}
-		$matches = array ();
-		if (preg_match_all ( '/@charset.*?;/i', $content, $matches )) {
-			if (count ( $matches [0] ) > 1 || FALSE === is_null ( $charsetCSS )) {
-				foreach ( $matches [0] as $match ) {
-					$content = str_replace ( $match, '', $content );
-				}
+	private function splitCssFilesMediaTypes(array &$cssFiles) {
+		$cssFilesSplitted = array ();
+		foreach ( $cssFiles as $file => $meta ) {
+			$index = md5($meta ['media'].$meta ['allWrap'].$meta ['rel']);
+			if (! isset ( $cssFilesSplitted [$index] )) {
+				$cssFilesSplitted [$index] = array ();
 			}
+			$cssFilesSplitted [$index] [$file] = $meta;
+			unset ( $cssFiles [$file] );
 		}
-		if (! preg_match ( '/@charset.*;/i', $content ) && FALSE === is_null ( $charsetCSS )) {
-			$content = '@charset "' . $charsetCSS . '";' . PHP_EOL . $content;
-		}
-		$newFile = $this->createCacheFile ( sha1 ( $content ) . $filename, $content );
-		$cssfiles [$newFile] = $meta;
-	}
-	
-	/**
-	 * @param array &$files
-	 * @param string $filename
-	 * @return void
-	 */
-	private function createNewJsBundle(array &$files, $filename) {
-		$content = '';
-		foreach ( $files as $file => $meta ) {
-			$filecontent = $this->getFileContent ( $file );
-			$content .= $filecontent;
-			unset ( $files [$file] );
-		}
-		$newFile = $this->createCacheFile ( sha1 ( $content ) . $filename, $content );
-		$files [$newFile] = $meta;
+		return $cssFilesSplitted;
 	}
 }

@@ -27,11 +27,16 @@ class tx_js_css_optimizer_hooks_jsCompressHandler extends tx_js_css_optimizer_ho
 		foreach ($args['jsFooterInline'] as $name=>$meta){
 			$args['jsFooterInline'][$name]['code'] = $jsOptimizer->compress($meta['code']);
 		}
+
 		$jsFooterFiles = array();
 		foreach ($args['jsFooterFiles'] as $file => $meta ) {
 			if($meta['compress']){
 				$content = $this->getFileContent ( $file );
-				$newFile = $this->createCacheFile ( '_compressed_'.sha1($content).'_'.basename($file), $jsOptimizer->compress($content) );
+				$fileName = $this->getFileName($file, $content);
+				if($this->hasCacheFile($fileName) === FALSE) {
+					$this->createCacheFile( $fileName, $jsOptimizer->compress($content) );
+				}
+				$newFile = $this->getCacheFilePath( $fileName );
 				$jsFooterFiles [$newFile]  = $meta;
 				unset ( $args['jsFooterFiles'] [$file] );
 			}
@@ -43,7 +48,11 @@ class tx_js_css_optimizer_hooks_jsCompressHandler extends tx_js_css_optimizer_ho
 		foreach ($args['jsFiles'] as $file => $meta ) {
 			if($meta['compress'] && ! isset($args['jsFooterFiles'][$file])){
 				$content = $this->getFileContent ( $file );
-				$newFile = $this->createCacheFile ( '_compressed_'.sha1($content).'_'.basename($file), $jsOptimizer->compress($content) );
+				$fileName = $this->getFileName($file, $content);
+				if($this->hasCacheFile($fileName) === FALSE) {
+					$this->createCacheFile( $fileName, $jsOptimizer->compress($content) );
+				}
+				$newFile = $this->getCacheFilePath( $fileName );
 				$jsFiles [$newFile]  = $meta;
 				unset ( $args['jsFiles'] [$file] );
 			}
@@ -55,10 +64,13 @@ class tx_js_css_optimizer_hooks_jsCompressHandler extends tx_js_css_optimizer_ho
 			if($meta['compress']){
 				$file = $meta['file'];
 				$content = $this->getFileContent ( $file );
-				$newFile = $this->createCacheFile ( '_compressed_'.sha1($content).'_'.basename($file), $jsOptimizer->compress($content) );
+				$fileName = $this->getFileName($file, $content);
+				if($this->hasCacheFile($fileName) === FALSE) {
+					$this->createCacheFile( $fileName, $jsOptimizer->compress($content) );
+				}
+				$newFile = $this->getCacheFilePath( $fileName );
 				$args['jsLibs'] [$libName]['file']  = $newFile;
 			}
 		}
-		
 	}
 }

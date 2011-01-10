@@ -14,7 +14,6 @@ require_once(t3lib_extMgm::extPath('js_css_optimizer').'classes'.DIRECTORY_SEPAR
  * Hook to compress the css
  */
 class tx_js_css_optimizer_hooks_cssCompressHandler  extends tx_js_css_optimizer_hooks{
-	
 	/**
 	 * @param array $args
 	 * @return void
@@ -29,13 +28,16 @@ class tx_js_css_optimizer_hooks_cssCompressHandler  extends tx_js_css_optimizer_
 			if ($meta['compress']) {
 				$filecontent = $this->getFileContent($file);
 				$filecontent = $this->fixRelativeCssPaths(dirname($file), $filecontent);
-				$newFile = $this->createCacheFile( '_compressed_' . sha1($filecontent) . '_' . basename($file), $cssOptimizer->compress($filecontent));
+				$fileName = $this->getFileName($file, $filecontent);
+				if($this->hasCacheFile($fileName) === FALSE) {
+					$this->createCacheFile( $fileName, $cssOptimizer->compress($filecontent) );
+				}
+				$newFile = $this->getCacheFilePath( $fileName );
 				$cssFiles[$newFile] = $meta;
 			} else {
 				$cssFiles[$file] = $meta;
-				}
+			}
 		}
 		$args['cssFiles'] = $cssFiles;
 	}
-	
 }
