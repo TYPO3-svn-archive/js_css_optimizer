@@ -31,14 +31,16 @@ class tx_js_css_optimizer_hooks_jsCompressHandler extends tx_js_css_optimizer_ho
 		$jsFooterFiles = array();
 		foreach ($args['jsFooterFiles'] as $file => $meta ) {
 			if($meta['compress']){
-				$content = $this->getFileContent ( $file );
-				$fileName = $this->getFileName($file, $content);
-				if($this->hasCacheFile($fileName) === FALSE) {
-					$this->createCacheFile( $fileName, $jsOptimizer->compress($content) );
+				if(!$this->isExternalResource($file)) {
+					$content = $this->getFileContent ( $file );
+					$fileName = $this->getFileName($file, $content);
+					if($this->hasCacheFile($fileName) === FALSE) {
+						$this->createCacheFile( $fileName, $jsOptimizer->compress($content) );
+					}
+					$newFile = $this->getCacheFilePath( $fileName );
+					$jsFooterFiles [$newFile]  = $meta;
+					unset ( $args['jsFooterFiles'] [$file] );
 				}
-				$newFile = $this->getCacheFilePath( $fileName );
-				$jsFooterFiles [$newFile]  = $meta;
-				unset ( $args['jsFooterFiles'] [$file] );
 			}
 		}
 		foreach ($jsFooterFiles as $file => $meta){
@@ -47,14 +49,17 @@ class tx_js_css_optimizer_hooks_jsCompressHandler extends tx_js_css_optimizer_ho
 		$jsFiles = array();
 		foreach ($args['jsFiles'] as $file => $meta ) {
 			if($meta['compress'] && ! isset($args['jsFooterFiles'][$file])){
-				$content = $this->getFileContent ( $file );
-				$fileName = $this->getFileName($file, $content);
-				if($this->hasCacheFile($fileName) === FALSE) {
-					$this->createCacheFile( $fileName, $jsOptimizer->compress($content) );
+				if(!$this->isExternalResource( $file ) ){
+				
+					$content = $this->getFileContent ( $file );
+					$fileName = $this->getFileName($file, $content);
+					if($this->hasCacheFile($fileName) === FALSE) {
+						$this->createCacheFile( $fileName, $jsOptimizer->compress($content) );
+					}
+					$newFile = $this->getCacheFilePath( $fileName );
+					$jsFiles [$newFile]  = $meta;
+					unset ( $args['jsFiles'] [$file] );
 				}
-				$newFile = $this->getCacheFilePath( $fileName );
-				$jsFiles [$newFile]  = $meta;
-				unset ( $args['jsFiles'] [$file] );
 			}
 		}
 		foreach ($jsFiles as $file => $meta){

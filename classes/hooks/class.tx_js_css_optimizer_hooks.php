@@ -12,6 +12,16 @@
  * @package js_css_optimize
  */
 abstract class tx_js_css_optimizer_hooks {
+	
+	/**
+	 * This method check if a resource is an external resource.
+	 * 
+	 * @param string $url
+	 */
+	protected function isExternalResource($url) {
+		return substr(strtolower($url), 0, 4) == 'http';
+	}
+	
 	/**
 	 * @param string $name
 	 * @param string $content
