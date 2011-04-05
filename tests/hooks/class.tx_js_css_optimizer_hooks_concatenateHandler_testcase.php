@@ -220,7 +220,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 			//we expect that the two external librarys are kept and do not get bundled
 		$this->assertEquals(1, count($jsLibs));
 		$this->assertEquals(1, count($jsFiles));
-		$this->assertEmpty($jsLibs['bundledLib']);		
+		$this->assertTrue(empty($jsLibs['bundledLib']));
 	}
 	/**
 	 * This testcase should test if external and internal resources are kept.
@@ -244,7 +244,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 			//we expect that we have two libs, one bundled lib that should contain the content from the local 
 			//and the external lib should still be left
 		$this->assertEquals(2, count($jsLibs));
-		$this->assertNotEmpty($jsLibs['bundledLib']);			
+		$this->assertFalse(empty($jsLibs['bundledLib']));
 		
 		$bundlePath 			= PATH_site .$jsLibs['bundledLib']['file'];
 		$bundleContent 			= file_get_contents ( $bundlePath );
