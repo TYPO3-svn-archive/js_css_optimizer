@@ -19,7 +19,7 @@ abstract class tx_js_css_optimizer_hooks {
 	 * @param string $url
 	 */
 	protected function isExternalResource($url) {
-		return substr(strtolower($url), 0, 4) == 'http';
+		return substr(strtolower($url), 0, 4) == 'http' || substr(strtolower($url), 0, 2) == '//' ;
 	}
 	
 	/**

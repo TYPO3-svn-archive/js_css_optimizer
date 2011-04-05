@@ -25,7 +25,7 @@ class tx_js_css_optimizer_hooks_cssCompressHandler  extends tx_js_css_optimizer_
 		}
 		$cssFiles = array();
 		foreach ($args['cssFiles'] as $file => $meta) {
-			if ($meta['compress']) {
+			if ($meta['compress'] && !$this->isExternalResource($file)) {
 				$filecontent = $this->getFileContent($file);
 				$filecontent = $this->fixRelativeCssPaths(dirname($file), $filecontent);
 				$fileName = $this->getFileName($file, $filecontent);
