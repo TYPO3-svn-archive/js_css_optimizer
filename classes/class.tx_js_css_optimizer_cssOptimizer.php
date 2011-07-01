@@ -37,6 +37,8 @@ class tx_js_css_optimizer_cssOptimizer {
 			throw new Exception ( 'could not parse css' );
 		}
 		$css = $csstidy->print->plain ();
-		return str_replace ( "\n", '', $css );
+		$whitspaces = array("\r\n","\n","\r");
+		$css = str_replace( $whitspaces, '', $css );
+		return $css;
 	}
 }

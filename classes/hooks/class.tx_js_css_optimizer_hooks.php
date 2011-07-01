@@ -136,13 +136,4 @@ abstract class tx_js_css_optimizer_hooks {
 		$path = $this->getCacheFilePath($name, FALSE);
 		return file_exists($path);
 	}
-
-	/**
-	 * Get the path of an recource
-	 * @param string $path
-	 * @return string
-	 */
-	private function getRecourcePath($path){
-		return $path;
-	}
 }
