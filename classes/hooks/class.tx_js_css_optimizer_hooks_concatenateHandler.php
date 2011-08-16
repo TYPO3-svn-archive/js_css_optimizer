@@ -49,7 +49,12 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	 * @return	string
 	 */
 	protected function getFileName($file, $filecontent) {
-		return sha1 ( $filecontent ) . $file;
+		if ($this->useHashedFilename()) {
+			$filename = sha1 ( $filecontent ) . $file;
+		} else {
+			$filename = $file;
+		}
+		return $filename;
 	}
 
 	/**
@@ -80,7 +85,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 		}
 		
 		if(trim($content) != '') {
-			$newFileName = sha1 ( $content ) . $filename;
+			$newFileName = $this->getFileName($filename, $content);
 			if($this->hasCacheFile($newFileName) === FALSE) {
 				$this->createCacheFile( $newFileName, $content );
 			}
@@ -142,7 +147,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 		$content = $topContent . $content;
 		
 		if(trim($content) != '') {
-			$newFileName = sha1 ( $content ) . $filename;
+			$newFileName = $this->getFileName($filename, $content);
 			if($this->hasCacheFile($newFileName) === FALSE) {
 				$this->createCacheFile( $newFileName, $content );
 			}

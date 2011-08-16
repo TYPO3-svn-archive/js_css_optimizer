@@ -28,7 +28,7 @@ abstract class tx_js_css_optimizer_hooks {
 	 * @throws Exception
 	 */
 	protected function createCacheFile($name,$content){
-		$name = $this->getPrefix().$name;
+		$name = $this->getPrefix($name).$name;
 		$path = $this->getCacheFolder().$name;
 		if (!is_dir($this->getCacheFolder())){ 
 			t3lib_div::mkdir ($this->getCacheFolder());
@@ -68,7 +68,7 @@ abstract class tx_js_css_optimizer_hooks {
 	 * @return string
 	 */
 	protected function getCacheFilePath($name,$contextIsClient=TRUE) {
-		$name = $this->getPrefix().$name;
+		$name = $this->getPrefix($name).$name;
 		if($contextIsClient === TRUE) {
 			// generate path for client
 			$path = 'typo3temp/js_css_optimizer/'.$name;
@@ -112,20 +112,41 @@ abstract class tx_js_css_optimizer_hooks {
 		}
 		return $content;
 	}
+
 	/**
 	 * @param	string	$file
 	 * @param	string	$filecontent
 	 * @return	string
 	 */
 	protected function getFileName($file, $filecontent) {
-		return '_compressed_' . sha1($filecontent) . '_' . basename($file);
+		if ($this->useHashedFilename()) {
+			$filename = '_compressed_' . sha1($filecontent) . '_' . basename($file);
+		} else {
+			$filename = basename($file);
+		}
+		return $filename;
 	}
 	/**
 	 * Get the Prefix of the file names
+	 * @param string $name
 	 * @return string
 	 */
-	protected function getPrefix(){
-		return 'js_css_optimizer';
+	protected function getPrefix($name='') {
+		$prefix = 'js_css_optimizer';
+		$result = '';
+		if (!$name || !stristr($name, $prefix)) {
+			$result = $prefix;
+		}
+		return $result;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function useHashedFilename() {
+			// is either "1", "embed" or "querystring" - if nothing isset we've to take care
+		$mode = strtolower($GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['versionNumberInFilename']);
+		return ! ((boolean) $mode);
 	}
 
 	/**
