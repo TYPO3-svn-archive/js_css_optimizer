@@ -33,7 +33,9 @@ class tx_js_css_optimizer_hooks_cssCompressHandler  extends tx_js_css_optimizer_
 					$this->createCacheFile( $fileName, $cssOptimizer->compress($filecontent) );
 				}
 				$newFile = $this->getCacheFilePath( $fileName );
+				$meta['file'] = $newFile;
 				$cssFiles[$newFile] = $meta;
+				
 			} else {
 				$cssFiles[$file] = $meta;
 			}
