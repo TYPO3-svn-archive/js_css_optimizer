@@ -125,9 +125,13 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	private function createNewJsLibBundle(array &$files, $filename) {
 		$topContent = '';
 		$content = '';
+		$compressBundle = FALSE;
 		$jsFilesOnBottom = array ();
 		foreach ( $files as $name => $meta ) {
 			if(!$this->isExternalResource($meta['file'])) {
+				if(isset($meta['compress']) && $meta['compress']){
+					$compressBundle = TRUE;
+				}
 				if (empty ( $meta ['allWrap'] )) {
 					$filecontent = $this->getFileContent ( $meta ['file'] );
 					if ($meta ['forceOnTop']) {
@@ -152,7 +156,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 				$this->createCacheFile( $newFileName, $content );
 			}
 			$newFile = $this->getCacheFilePath( $newFileName );
-			$files ['bundledLib'] = array ('file' => $newFile, 'type' => 'text/javascript', 'section' => t3lib_PageRenderer::PART_HEADER, 'compressed' => false, 'forceOnTop' => false, 'allWrap' => '' );
+			$files ['bundledLib'] = array ('file' => $newFile, 'type' => 'text/javascript', 'section' => t3lib_PageRenderer::PART_HEADER, 'compress' => $compressBundle, 'forceOnTop' => false, 'allWrap' => '' );
 			foreach ( $jsFilesOnBottom as $name => $meta ) {
 				$files [$name] = $meta;
 			}
