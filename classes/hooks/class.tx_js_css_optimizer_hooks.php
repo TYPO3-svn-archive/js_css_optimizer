@@ -16,7 +16,8 @@ abstract class tx_js_css_optimizer_hooks {
 	/**
 	 * This method check if a resource is an external resource.
 	 * 
-	 * @param string $url
+	 * @param $url
+	 * @return bool
 	 */
 	protected function isExternalResource($url) {
 		return substr(strtolower($url), 0, 4) == 'http' || substr(strtolower($url), 0, 2) == '//' ;
@@ -88,6 +89,7 @@ abstract class tx_js_css_optimizer_hooks {
 	protected function getCacheFolder(){
 		return PATH_site . 'typo3temp'.DIRECTORY_SEPARATOR.'js_css_optimizer'.DIRECTORY_SEPARATOR;
 	}
+	
 	/**
 	 * @param string $file
 	 * @return string
@@ -122,10 +124,11 @@ abstract class tx_js_css_optimizer_hooks {
 		if ($this->useHashedFilename()) {
 			$filename = '_compressed_' . sha1($filecontent) . '_' . basename($file);
 		} else {
-			$filename = basename($file);
+			$filename = sha1($file) . '_' . basename($file);
 		}
 		return $filename;
 	}
+	
 	/**
 	 * Get the Prefix of the file names
 	 * @param string $name
