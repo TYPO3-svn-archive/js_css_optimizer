@@ -83,7 +83,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 		$jsLibs = array ();
 		$jsFiles = array ();
 		$jsFooterFiles = array ();
-		$cssFiles = array ($folder . 'testpath1.css' => array (), $folder . 'testpath2.css' => array (), $folder . 'testpath3.css' => array (), $folder . 'testpath4.css' => array (), $folder . 'testpath5.css' => array (), $folder . 'testpath6.css' => array (), $folder . 'testpath7.css' => array () );
+		$cssFiles = array ($folder . 'testpath1.css' => array (), $folder . 'testpath2.css' => array (), $folder . 'testpath3.css' => array (), $folder . 'testpath4.css' => array (), $folder . 'testpath5.css' => array (), $folder . 'testpath6.css' => array (), $folder . 'testpath7.css' => array (), $folder . 'testpath8.css' => array (), $folder . 'testpath9.css' => array () );
 		$args = array ('jsLibs' => &$jsLibs, 'jsFiles' => &$jsFiles, 'jsFooterFiles' => &$jsFooterFiles, 'cssFiles' => &$cssFiles );
 		$this->concatenateHandler->process ( $args );
 		$this->assertEquals ( 1, count ( $cssFiles ) );
@@ -98,6 +98,8 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 			$this->assertContains ( '/fixtures/../../images/test4.gif', $content );
 			$this->assertContains ( "'/typo3conf/ext/js_css_optimizer/tests/hooks/fixtures/../img/indicator.gif'", $content, $content );
 			$this->assertContains ( "/typo3conf/ext/js_css_optimizer/tests/hooks/fixtures/../img/indicator7.gif", $content, $content );
+			$this->assertContains ( "/typo3conf/ext/js_css_optimizer/tests/hooks/fixtures/indicator8.htc", $content, $content );
+			$this->assertContains ( "/typo3conf/ext/js_css_optimizer/tests/hooks/fixtures/../img/indicator9.gif", $content, $content );
 		}
 	}
 	/**

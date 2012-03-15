@@ -72,7 +72,7 @@ abstract class tx_js_css_optimizer_hooks {
 		if($contextIsClient === TRUE) {
 			// generate path for client
 			$path = 'typo3temp/js_css_optimizer/'.$name;
-			if(isset($GLOBALS['TSFE']) && isset($GLOBALS['TSFE']->absRefPrefix)){
+			if($this->isAbsRefPrefix()){
 				$path = $GLOBALS['TSFE']->absRefPrefix .$path;
 			}
 		} else {
@@ -101,8 +101,10 @@ abstract class tx_js_css_optimizer_hooks {
 				$file = t3lib_extMgm::siteRelPath($extKey) . $local;
 			}
 		}
+		if($this->isAbsRefPrefix() && substr($file,0,strlen($GLOBALS['TSFE']->absRefPrefix)) == $GLOBALS['TSFE']->absRefPrefix ){
+			$file = substr($file,strlen($GLOBALS['TSFE']->absRefPrefix));
+		}
 		$path = t3lib_div::resolveBackPath(PATH_site.DIRECTORY_SEPARATOR . $file);
-
 		if(!file_exists($path)){
 			throw new Exception('file not found: '.$path);	
 		}
@@ -158,5 +160,11 @@ abstract class tx_js_css_optimizer_hooks {
 	protected function hasCacheFile($name) {
 		$path = $this->getCacheFilePath($name, FALSE);
 		return file_exists($path);
+	}
+	/**
+	 * @return boolean
+	 */
+	private function isAbsRefPrefix(){
+		return (isset($GLOBALS['TSFE']) && isset($GLOBALS['TSFE']->absRefPrefix));
 	}
 }
