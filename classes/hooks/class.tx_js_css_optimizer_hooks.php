@@ -145,10 +145,10 @@ abstract class tx_js_css_optimizer_hooks {
 	}
 
 	/**
-	 * @return bool
+	 * @return boolean
 	 */
 	protected function useHashedFilename() {
-			// is either "1", "embed" or "querystring" - if nothing isset we've to take care
+		// is either "1", "embed" or "querystring" - if nothing isset we've to take care
 		$mode = strtolower($GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['versionNumberInFilename']);
 		return ! ((boolean) $mode);
 	}

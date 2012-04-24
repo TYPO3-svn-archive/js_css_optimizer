@@ -21,13 +21,13 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 		$conf = unserialize ( $GLOBALS ['TYPO3_CONF_VARS'] ['EXT'] ['extConf'] ['js_css_optimizer'] );
 		if ($conf ['bundle_js']) {
 			if (count ( $args ['jsLibs'] ) > 0) {
-				$this->createNewJsLibBundle ( $args ['jsLibs'], '_bundled_jsLibs.js' );
+				$this->createNewJsLibBundle ( $args ['jsLibs'], sha1 (var_export($args ['jsLibs'],TRUE)).'_bundled_jsLibs.js' );
 			}
 			if (count ( $args ['jsFiles'] ) > 0) {
-				$this->createNewJsBundle ( $args ['jsFiles'], '_bundled_jsFiles.js' );
+				$this->createNewJsBundle ( $args ['jsFiles'], sha1 (var_export($args ['jsFiles'],TRUE)).'_bundled_jsFiles.js' );
 			}
 			if (count ( $args ['jsFooterFiles'] ) > 0) {
-				$this->createNewJsBundle ( $args ['jsFooterFiles'], '_bundled_jsFooterFiles.js' );
+				$this->createNewJsBundle ( $args ['jsFooterFiles'], sha1 (var_export($args ['jsFooterFiles'],TRUE)).'_bundled_jsFooterFiles.js' );
 			}
 		}
 		if ($conf ['bundle_css']) {
