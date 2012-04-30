@@ -7,7 +7,7 @@
  *
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-require_once (t3lib_extMgm::extPath ( 'js_css_optimizer' ) . 'contrib' . DIRECTORY_SEPARATOR . 'csstidy-1.3' . DIRECTORY_SEPARATOR . 'class.csstidy.php');
+require_once (t3lib_extMgm::extPath ( 'js_css_optimizer' ) . 'contrib' . DIRECTORY_SEPARATOR . 'Cerdic-CSSTidy-afda08b' . DIRECTORY_SEPARATOR . 'class.csstidy.php');
 /**
  * css compressor
  */
