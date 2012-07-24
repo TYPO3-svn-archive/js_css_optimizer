@@ -57,7 +57,7 @@ abstract class tx_js_css_optimizer_hooks {
 		$baseFolder = t3lib_div::resolveBackPath($root . $baseFolder);
 
 		$content =  preg_replace('/url[ ]*\([ ]*[\'"]*[\.\.\/]{3}([\w]+\.[\w]+)/i', 'url('.$baseFolder.'/$1', $content ); // background: url(../test3.gif);
-		$content =  preg_replace('/url[ ]*\([ ]*[\'"]*([a-z|0-9|_|-]+)/i', 'url('.$baseFolder.'/$1', $content ); // background: url(images/test2.gif);
+		$content =  preg_replace('/url[ ]*\(([ ]*[\'"]*)([a-z|0-9|_|-]+)/i', 'url($1'.$baseFolder.'/$2', $content ); // background: url(images/test2.gif);
 		$content =  preg_replace('/url[ ]*\(([ ]*[\'"]*)([\.\.\/]{3})([\.\.\/]*)/i', 'url($1'.$baseFolder.'/$2$3', $content ); //background: url(../images/test1.gif);  or background: url(../../images/test4.gif);
 		return $content;
 	}

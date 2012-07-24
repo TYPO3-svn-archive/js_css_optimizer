@@ -21,13 +21,13 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 		$conf = unserialize ( $GLOBALS ['TYPO3_CONF_VARS'] ['EXT'] ['extConf'] ['js_css_optimizer'] );
 		if ($conf ['bundle_js']) {
 			if (count ( $args ['jsLibs'] ) > 0) {
-				$this->createNewJsLibBundle ( $args ['jsLibs'], sha1 (var_export($args ['jsLibs'],TRUE)).'_bundled_jsLibs.js' );
+				$this->createNewJsLibBundle ( $args ['jsLibs'], sha1 ( var_export ( $args ['jsLibs'], TRUE ) ) . '_bundled_jsLibs.js' );
 			}
 			if (count ( $args ['jsFiles'] ) > 0) {
-				$this->createNewJsBundle ( $args ['jsFiles'], sha1 (var_export($args ['jsFiles'],TRUE)).'_bundled_jsFiles.js' );
+				$this->createNewJsBundle ( $args ['jsFiles'], sha1 ( var_export ( $args ['jsFiles'], TRUE ) ) . '_bundled_jsFiles.js' );
 			}
 			if (count ( $args ['jsFooterFiles'] ) > 0) {
-				$this->createNewJsBundle ( $args ['jsFooterFiles'], sha1 (var_export($args ['jsFooterFiles'],TRUE)).'_bundled_jsFooterFiles.js' );
+				$this->createNewJsBundle ( $args ['jsFooterFiles'], sha1 ( var_export ( $args ['jsFooterFiles'], TRUE ) ) . '_bundled_jsFooterFiles.js' );
 			}
 		}
 		if ($conf ['bundle_css']) {
@@ -37,26 +37,26 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 					$charsetCSS = $conf ['charsetCSS'];
 				}
 				foreach ( $this->splitCssFilesMediaTypes ( $args ['cssFiles'] ) as $mediaType => $files ) {
-					$this->createNewCssBundle ( $files, '_'.$mediaType . '_bundled_cssFiles.css', $charsetCSS, $args ['cssFiles'] );
+					$this->createNewCssBundle ( $files, '_' . $mediaType . '_bundled_cssFiles.css', $charsetCSS, $args ['cssFiles'] );
 				}
 			}
 		}
 	}
-
+	
 	/**
 	 * @param	string	$file
 	 * @param	string	$filecontent
 	 * @return	string
 	 */
 	protected function getFileName($file, $filecontent) {
-		if ($this->useHashedFilename()) {
-			$filename = sha1 ( $filecontent ) . $file;
+		if ($this->useHashedFilename ()) {
+			$filename = sha1 ( $filecontent. $file ). substr($file, strrpos($file, '.'));
 		} else {
 			$filename = $file;
 		}
 		return $filename;
 	}
-
+	
 	/**
 	 * @param array &$files
 	 * @param string $filename
@@ -67,7 +67,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	private function createNewCssBundle(array $files, $filename, $charsetCSS = null, array &$cssfiles) {
 		$content = '';
 		foreach ( $files as $file => $meta ) {
-			if(!$this->isExternalResource($file)) {
+			if (! $this->isExternalResource ( $file )) {
 				$filecontent = $this->getFileContent ( $file );
 				$content .= $this->fixRelativeCssPaths ( dirname ( $file ), $filecontent );
 			}
@@ -84,12 +84,12 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 			$content = '@charset "' . $charsetCSS . '";' . PHP_EOL . $content;
 		}
 		
-		if(trim($content) != '') {
-			$newFileName = $this->getFileName($filename, $content);
-			if($this->hasCacheFile($newFileName) === FALSE) {
-				$this->createCacheFile( $newFileName, $content );
+		if (trim ( $content ) != '') {
+			$newFileName = $this->getFileName ( $filename, $content );
+			if ($this->hasCacheFile ( $newFileName ) === FALSE) {
+				$this->createCacheFile ( $newFileName, $content );
 			}
-			$newFile = $this->getCacheFilePath( $newFileName );
+			$newFile = $this->getCacheFilePath ( $newFileName );
 			$cssfiles [$newFile] = $meta;
 		}
 	}
@@ -100,22 +100,38 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	 */
 	private function createNewJsBundle(array &$files, $filename) {
 		$content = '';
+		$sortedFiles = array ();
+		$bundleKey = uniqid ();
 		foreach ( $files as $file => $meta ) {
-			if(!$this->isExternalResource($file)) {
+			if (! $this->isExternalResource ( $file ) && empty ( $meta ['allWrap'] )) {
 				$filecontent = $this->getFileContent ( $file );
-				$content .= $filecontent;
-				unset ( $files [$file] );
+				$content .= trim ( $filecontent );
+				if (! empty ( $content )) {
+					$sortedFiles [$bundleKey] = $meta;
+				}
+			}else{
+				$sortedFiles[$file] = $meta;
 			}
 		}
-		
-		if(trim($content) != '') {
-			$newFileName = $this->getFileName($filename, $content);
-			if($this->hasCacheFile($newFileName) === FALSE) {
-				$this->createCacheFile( $newFileName, $content );
+		if (! empty ( $content )) {
+			$newFiles = array();
+			foreach ( $sortedFiles as $file => $meta ) {
+				if ($file === $bundleKey) {
+					$newFileName = $this->getFileName ( $filename, $content );
+					if ($this->hasCacheFile ( $newFileName ) === FALSE) {
+						$this->createCacheFile ( $newFileName, $content );
+					}
+					$newFile = $this->getCacheFilePath ( $newFileName );
+					$newFiles [$newFile] = $meta;
+				} else {
+					$newFiles [$file] = $meta;
+				}
 			}
-			$newFile = $this->getCacheFilePath( $newFileName );
-			$files [$newFile] = $meta;
+			
+		}else{
+			$newFiles = $sortedFiles;
 		}
+		$files = $newFiles;
 	}
 	/**
 	 * @param array &$files
@@ -127,9 +143,10 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 		$content = '';
 		$compressBundle = FALSE;
 		$jsFilesOnBottom = array ();
+		$sortedFiles = array();
 		foreach ( $files as $name => $meta ) {
-			if(!$this->isExternalResource($meta['file'])) {
-				if(isset($meta['compress']) && $meta['compress']){
+			if (! $this->isExternalResource ( $meta ['file'] )) {
+				if (isset ( $meta ['compress'] ) && $meta ['compress']) {
 					$compressBundle = TRUE;
 				}
 				if (empty ( $meta ['allWrap'] )) {
@@ -149,20 +166,19 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 			}
 		}
 		$content = $topContent . $content;
-		
-		if(trim($content) != '') {
-			$newFileName = $this->getFileName($filename, $content);
-			if($this->hasCacheFile($newFileName) === FALSE) {
-				$this->createCacheFile( $newFileName, $content );
+		if (trim ( $content ) != '') {
+			$newFileName = $this->getFileName ( $filename, $content );
+			if ($this->hasCacheFile ( $newFileName ) === FALSE) {
+				$this->createCacheFile ( $newFileName, $content );
 			}
-			$newFile = $this->getCacheFilePath( $newFileName );
+			$newFile = $this->getCacheFilePath ( $newFileName );
 			$files ['bundledLib'] = array ('file' => $newFile, 'type' => 'text/javascript', 'section' => t3lib_PageRenderer::PART_HEADER, 'compress' => $compressBundle, 'forceOnTop' => false, 'allWrap' => '' );
 			foreach ( $jsFilesOnBottom as $name => $meta ) {
 				$files [$name] = $meta;
 			}
 		}
-	}	
-
+	}
+	
 	/**
 	 * @param array &$cssFiles
 	 * @return array
@@ -170,8 +186,8 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	private function splitCssFilesMediaTypes(array &$cssFiles) {
 		$cssFilesSplitted = array ();
 		foreach ( $cssFiles as $file => $meta ) {
-			if(!$this->isExternalResource($file)) {
-				$index = md5($meta ['media'].$meta ['allWrap'].$meta ['rel']);
+			if (! $this->isExternalResource ( $file )) {
+				$index = md5 ( $meta ['media'] . $meta ['allWrap'] . $meta ['rel'] );
 				if (! isset ( $cssFilesSplitted [$index] )) {
 					$cssFilesSplitted [$index] = array ();
 				}
