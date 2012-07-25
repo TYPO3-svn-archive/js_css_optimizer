@@ -62,7 +62,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 		}
 		foreach ( array_keys ( $jsFiles ) as $jsFile ) {
 			$path = PATH_site . $jsFile;
-			$this->assertTrue ( file_exists ( $path ) );
+			$this->assertTrue ( file_exists ( $path ),'File: '. $path.' not found' );
 			$content = file_get_contents ( $path );
 			$this->assertContains ( file_get_contents ( t3lib_extMgm::extPath ( 'js_css_optimizer' ) . 'tests/hooks/fixtures/test1.js' ), $content );
 			$this->assertContains ( file_get_contents ( t3lib_extMgm::extPath ( 'js_css_optimizer' ) . 'tests/hooks/fixtures/test2.js' ), $content );

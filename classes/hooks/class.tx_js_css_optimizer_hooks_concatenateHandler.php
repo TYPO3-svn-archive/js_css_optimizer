@@ -139,42 +139,50 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	 * @return void
 	 */
 	private function createNewJsLibBundle(array &$files, $filename) {
-		$topContent = '';
-		$content = '';
-		$compressBundle = FALSE;
 		$jsFilesOnBottom = array ();
-		$sortedFiles = array();
+		$sectionsBundles = array();
 		foreach ( $files as $name => $meta ) {
-			if (! $this->isExternalResource ( $meta ['file'] )) {
-				if (isset ( $meta ['compress'] ) && $meta ['compress']) {
-					$compressBundle = TRUE;
-				}
-				if (empty ( $meta ['allWrap'] )) {
-					$filecontent = $this->getFileContent ( $meta ['file'] );
-					if ($meta ['forceOnTop']) {
-						$topContent .= $filecontent;
-					} else {
-						$content .= $filecontent;
-					}
-					unset ( $files [$name] );
+			
+			if ( $this->isExternalResource ( $meta ['file'] )) {
+				continue;
+			}
+			if(!isset($sectionsBundles[$meta ['section']])){
+				$sectionsBundles[$meta ['section']] = array();
+				$sectionsBundles[$meta ['section']]['topContent'] = '';
+				$sectionsBundles[$meta ['section']]['content'] = '';
+				$sectionsBundles[$meta ['section']]['compress'] = FALSE;
+			}
+			if (isset ( $meta ['compress'] ) && $meta ['compress']) {
+				$sectionsBundles[$meta ['section']]['compress'] = $meta ['compress'];
+			}
+			if (empty ( $meta ['allWrap'] )) {
+				$filecontent = $this->getFileContent ( $meta ['file'] );
+				if ($meta ['forceOnTop']) {
+					$sectionsBundles[$meta ['section']]['topContent'] .= $filecontent;
 				} else {
-					if (! $meta ['forceOnTop']) {
-						$jsFilesOnBottom [$name] = $files [$name];
-						unset ( $files [$name] );
-					}
+					$sectionsBundles[$meta ['section']]['content'] .= $filecontent;
+				}
+				unset ( $files [$name] );
+			} else {
+				if (! $meta ['forceOnTop']) {
+					$jsFilesOnBottom [$name] = $files [$name];
+					unset ( $files [$name] );
 				}
 			}
 		}
-		$content = $topContent . $content;
-		if (trim ( $content ) != '') {
-			$newFileName = $this->getFileName ( $filename, $content );
-			if ($this->hasCacheFile ( $newFileName ) === FALSE) {
-				$this->createCacheFile ( $newFileName, $content );
-			}
-			$newFile = $this->getCacheFilePath ( $newFileName );
-			$files ['bundledLib'] = array ('file' => $newFile, 'type' => 'text/javascript', 'section' => t3lib_PageRenderer::PART_HEADER, 'compress' => $compressBundle, 'forceOnTop' => false, 'allWrap' => '' );
-			foreach ( $jsFilesOnBottom as $name => $meta ) {
-				$files [$name] = $meta;
+		$sectionsBundles = array_reverse($sectionsBundles);
+		foreach ($sectionsBundles as $section =>$sectionsBundle){
+			$content =  $sectionsBundle['topContent'] . $sectionsBundle['content'];
+			if (trim ( $content ) != '') {
+				$newFileName = $this->getFileName ( $filename, $content );
+				if ($this->hasCacheFile ( $newFileName ) === FALSE) {
+					$this->createCacheFile ( $newFileName, $content );
+				}
+				$newFile = $this->getCacheFilePath ( $newFileName );
+				$files ['bundledLib'] = array ('file' => $newFile, 'type' => 'text/javascript', 'section' => $section, 'compress' => $sectionsBundle['compress'], 'forceOnTop' => false, 'allWrap' => '' );
+				foreach ( $jsFilesOnBottom as $name => $meta ) {
+					$files [$name] = $meta;
+				}
 			}
 		}
 	}
