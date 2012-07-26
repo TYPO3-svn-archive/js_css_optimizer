@@ -50,7 +50,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	 */
 	protected function getFileName($file, $filecontent) {
 		if ($this->useHashedFilename ()) {
-			$filename = sha1 ( $filecontent. $file ). substr($file, strrpos($file, '.'));
+			$filename = sha1 ( $filecontent ).$file;
 		} else {
 			$filename = $file;
 		}
@@ -179,7 +179,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 					$this->createCacheFile ( $newFileName, $content );
 				}
 				$newFile = $this->getCacheFilePath ( $newFileName );
-				$files ['bundledLib'] = array ('file' => $newFile, 'type' => 'text/javascript', 'section' => $section, 'compress' => $sectionsBundle['compress'], 'forceOnTop' => false, 'allWrap' => '' );
+				$files [$newFile] = array ('file' => $newFile, 'type' => 'text/javascript', 'section' => $section, 'compress' => $sectionsBundle['compress'], 'forceOnTop' => false, 'allWrap' => '' );
 				foreach ( $jsFilesOnBottom as $name => $meta ) {
 					$files [$name] = $meta;
 				}
