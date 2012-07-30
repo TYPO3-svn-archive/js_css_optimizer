@@ -106,12 +106,12 @@ abstract class tx_js_css_optimizer_hooks {
 		}
 		$path = t3lib_div::resolveBackPath(PATH_site.DIRECTORY_SEPARATOR . $file);
 		if(!file_exists($path)){
-			throw new Exception('file not found: '.$path);	
+			throw new Exception('tx_js_css_optimizer: file not found: '.$path);	
 		}
 		t3lib_div::fixPermissions($path);
 		$content = file_get_contents($path);
 		if(FALSE === $content){
-			throw new Exception('could not read file: '.$path);	
+			throw new Exception('tx_js_css_optimizer: could not read file: '.$path);	
 		}
 		return $content;
 	}

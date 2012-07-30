@@ -114,7 +114,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 				$sortedFiles[$file] = $meta;
 			}
 		}
-		if (! empty ( $content )) {
+		if (isset($sortedFiles [$bundleKey])) {
 			$newFiles = array();
 			foreach ( $sortedFiles as $file => $meta ) {
 				if ($file === $bundleKey) {
