@@ -24,6 +24,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 				$this->createNewJsLibBundle ( $args ['jsLibs'], sha1 ( var_export ( $args ['jsLibs'], TRUE ) ) . '_bundled_jsLibs.js' );
 			}
 			if (count ( $args ['jsFiles'] ) > 0) {
+				
 				$this->createNewJsBundle ( $args ['jsFiles'], sha1 ( var_export ( $args ['jsFiles'], TRUE ) ) . '_bundled_jsFiles.js' );
 			}
 			if (count ( $args ['jsFooterFiles'] ) > 0) {
@@ -141,9 +142,10 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	private function createNewJsLibBundle(array &$files, $filename) {
 		$jsFilesOnBottom = array ();
 		$sectionsBundles = array();
+		$sortedFiles = array();
 		foreach ( $files as $name => $meta ) {
-			
 			if ( $this->isExternalResource ( $meta ['file'] )) {
+				$sortedFiles[$name] = $meta;
 				continue;
 			}
 			if(!isset($sectionsBundles[$meta ['section']])){
@@ -156,6 +158,9 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 				$sectionsBundles[$meta ['section']]['compress'] = $meta ['compress'];
 			}
 			if (empty ( $meta ['allWrap'] )) {
+				if(!isset($sortedFiles['jslib_bundle_section_'.$meta ['section']])){
+					$sortedFiles['jslib_bundle_section_'.$meta ['section']] = array();
+				}
 				$filecontent = $this->getFileContent ( $meta ['file'] );
 				if ($meta ['forceOnTop']) {
 					$sectionsBundles[$meta ['section']]['topContent'] .= $filecontent;
@@ -166,11 +171,13 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 			} else {
 				if (! $meta ['forceOnTop']) {
 					$jsFilesOnBottom [$name] = $files [$name];
-					unset ( $files [$name] );
+				}else {
+					$sortedFiles[$name] = $meta;
 				}
 			}
 		}
-		$sectionsBundles = array_reverse($sectionsBundles);
+		
+		$sectionsBundles = array_reverse($sectionsBundles,TRUE);
 		foreach ($sectionsBundles as $section =>$sectionsBundle){
 			$content =  $sectionsBundle['topContent'] . $sectionsBundle['content'];
 			if (trim ( $content ) != '') {
@@ -179,12 +186,14 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 					$this->createCacheFile ( $newFileName, $content );
 				}
 				$newFile = $this->getCacheFilePath ( $newFileName );
-				$files [$newFile] = array ('file' => $newFile, 'type' => 'text/javascript', 'section' => $section, 'compress' => $sectionsBundle['compress'], 'forceOnTop' => false, 'allWrap' => '' );
-				foreach ( $jsFilesOnBottom as $name => $meta ) {
-					$files [$name] = $meta;
-				}
+				$sortedFiles['jslib_bundle_section_'.$section] = array ('file' => $newFile, 'type' => 'text/javascript', 'section' => $section, 'compress' => $sectionsBundle['compress'], 'forceOnTop' => false, 'allWrap' => '' );;
+				
 			}
 		}
+		foreach ( $jsFilesOnBottom as $name => $meta ) {
+			$sortedFiles [$name] = $meta;
+		}
+		$files = $sortedFiles; 
 	}
 	
 	/**

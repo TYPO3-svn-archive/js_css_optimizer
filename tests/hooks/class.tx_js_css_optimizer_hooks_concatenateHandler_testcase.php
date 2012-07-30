@@ -62,7 +62,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 		}
 		foreach ( array_keys ( $jsFiles ) as $jsFile ) {
 			$path = PATH_site . $jsFile;
-			$this->assertTrue ( file_exists ( $path ),'File: '. $path.' not found' );
+			$this->assertTrue ( file_exists ( $path ), 'File: ' . $path . ' not found' );
 			$content = file_get_contents ( $path );
 			$this->assertContains ( file_get_contents ( t3lib_extMgm::extPath ( 'js_css_optimizer' ) . 'tests/hooks/fixtures/test1.js' ), $content );
 			$this->assertContains ( file_get_contents ( t3lib_extMgm::extPath ( 'js_css_optimizer' ) . 'tests/hooks/fixtures/test2.js' ), $content );
@@ -71,8 +71,8 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 			$path = PATH_site . $cssFile;
 			$this->assertTrue ( file_exists ( $path ) );
 			$content = file_get_contents ( $path );
-			$this->assertContains ('test1.css' , $content ,$content);
-			$this->assertContains ( 'test2.css' , $content ,$content);
+			$this->assertContains ( 'test1.css', $content, $content );
+			$this->assertContains ( 'test2.css', $content, $content );
 		}
 	}
 	/**
@@ -151,7 +151,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 			$path = PATH_site . $cssFile;
 			$this->assertTrue ( file_exists ( $path ) );
 			$content = file_get_contents ( $path );
-			$this->assertContains ( '@charset', $content ,$path);
+			$this->assertContains ( '@charset', $content, $path );
 		}
 	}
 	/**
@@ -191,12 +191,12 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 	/**
 	 * Test the method splitCssFilesMediaTypes
 	 */
-	public function test_splitCssFilesMediaTypes(){
+	public function test_splitCssFilesMediaTypes() {
 		$folder = 'EXT:js_css_optimizer/tests/hooks/fixtures/';
 		$jsLibs = array ();
 		$jsFiles = array ();
 		$jsFooterFiles = array ();
-		$cssFiles = array ($folder . 'test_charset1.css' => array ('media'=>'screen'), $folder . 'test_charset2.css' => array ('media'=>'print'), $folder . 'test_charset3.css' => array ('media'=>'screen') );
+		$cssFiles = array ($folder . 'test_charset1.css' => array ('media' => 'screen' ), $folder . 'test_charset2.css' => array ('media' => 'print' ), $folder . 'test_charset3.css' => array ('media' => 'screen' ) );
 		$args = array ('jsLibs' => &$jsLibs, 'jsFiles' => &$jsFiles, 'jsFooterFiles' => &$jsFooterFiles, 'cssFiles' => &$cssFiles );
 		$this->concatenateHandler->process ( $args );
 		$this->assertEquals ( 2, count ( $cssFiles ) );
@@ -211,19 +211,19 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 	 * 
 	 */
 	public function test_isExternalResourceKeepsExternalResources() {
-			//jsLibs have theire file name in the meta data
-		$jsLibs 		= array ('test'=>array('file'=> 'http://www.google.de/test.js'));
-		$jsFiles 		= array ('http://www.google.de/test.js' => array());
-		$jsFooterFiles 	= array ();
-		$cssFiles 		= array ();
-			
+		//jsLibs have theire file name in the meta data
+		$jsLibs = array ('test' => array ('file' => 'http://www.google.de/test.js' ) );
+		$jsFiles = array ('http://www.google.de/test.js' => array () );
+		$jsFooterFiles = array ();
+		$cssFiles = array ();
+		
 		$args = array ('jsLibs' => &$jsLibs, 'jsFiles' => &$jsFiles, 'jsFooterFiles' => &$jsFooterFiles, 'cssFiles' => &$cssFiles );
 		$this->concatenateHandler->process ( $args );
-
-			//we expect that the two external librarys are kept and do not get bundled
-		$this->assertEquals(1, count($jsLibs));
-		$this->assertEquals(1, count($jsFiles));
-		$this->assertTrue(empty($jsLibs['bundledLib']));
+		
+		//we expect that the two external librarys are kept and do not get bundled
+		$this->assertEquals ( 1, count ( $jsLibs ) );
+		$this->assertEquals ( 1, count ( $jsFiles ) );
+		$this->assertTrue ( empty ( $jsLibs ['bundledLib'] ) );
 	}
 	/**
 	 * This testcase should test if external and internal resources are kept.
@@ -231,30 +231,32 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 	 */
 	public function test_isExternalResourcesCanHandleMixedInternalAndExternalResources() {
 		$fixtureFile = 'EXT:js_css_optimizer/tests/hooks/fixtures/test1.js';
+		//jsLibs have theire file name in the meta data
+		$jsLibs = array ('test' => array ('file' => 'http://www.externaluri.de/test.js' ), 'test2' => array ('file' => $fixtureFile ) );
+		$jsFiles = array ('http://www.externaluri.de/test.js' => array () );
+		$jsFooterFiles = array ();
+		$cssFiles = array ();
 		
-			//jsLibs have theire file name in the meta data
-		$jsLibs 		= array ('test'=>array('file'=> 'http://www.externaluri.de/test.js'), 'test2' => array ('file' => $fixtureFile ));
-		$jsFiles 		= array ('http://www.externaluri.de/test.js' => array());
-		$jsFooterFiles 	= array ();
-		$cssFiles 		= array ();
-			
 		$args = array ('jsLibs' => &$jsLibs, 'jsFiles' => &$jsFiles, 'jsFooterFiles' => &$jsFooterFiles, 'cssFiles' => &$cssFiles );
 		$this->concatenateHandler->process ( $args );
-
-			//we expect that the two external librarys are kept and do not get bundled
-		$this->assertEquals(1, count($jsFiles));
-
-			//we expect that we have two libs, one bundled lib that should contain the content from the local 
-			//and the external lib should still be left
-		$this->assertEquals(2, count($jsLibs));
-		$this->assertFalse(empty($jsLibs['bundledLib']));
+		//we expect that the two external librarys are kept and do not get bundled
+		$this->assertEquals ( 1, count ( $jsFiles ) );
 		
-		$bundlePath 			= PATH_site .$jsLibs['bundledLib']['file'];
-		$bundleContent 			= file_get_contents ( $bundlePath );
-		$absoulteFixturePath 	= t3lib_div::getFileAbsFileName ($fixtureFile);
-		$fixtureContent 		= file_get_contents ( $absoulteFixturePath);
-		
-		$this->assertSame($fixtureContent, $bundleContent);
+		//we expect that we have two libs, one bundled lib that should contain the content from the local 
+		//and the external lib should still be left
+		$this->assertEquals ( 2, count ( $jsLibs ) );
+		foreach ( array_keys ( $jsLibs ) as $key ) {
+			if ($key !== 'test') {
+				$bundledLibKey = $key;
+				break;
+			}
+		}
+		$this->assertFalse ( empty ( $jsLibs [$bundledLibKey] ) );
+		$bundlePath = PATH_site . $jsLibs [$bundledLibKey] ['file'];
+		$bundleContent = file_get_contents ( $bundlePath );
+		$absoulteFixturePath = t3lib_div::getFileAbsFileName ( $fixtureFile );
+		$fixtureContent = file_get_contents ( $absoulteFixturePath );
+		$this->assertSame ( $fixtureContent, $bundleContent );
 	}
 	/**
 	 * clean up
