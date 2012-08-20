@@ -102,9 +102,12 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 	private function createNewJsBundle(array &$files, $filename) {
 		$content = '';
 		$sortedFiles = array ();
-		$bundleKey = uniqid ();
+		$bundleKey = uniqid ('tx_js_css_optimizer_hooks_concatenateHandler');
 		foreach ( $files as $file => $meta ) {
 			if (! $this->isExternalResource ( $file ) && empty ( $meta ['allWrap'] )) {
+				if(is_numeric($file)){
+					continue;
+				}
 				$filecontent = $this->getFileContent ( $file );
 				$content .= trim ( $filecontent );
 				if (! empty ( $content )) {
