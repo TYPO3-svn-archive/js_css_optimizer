@@ -12,17 +12,17 @@
  * @package js_css_optimize
  */
 abstract class tx_js_css_optimizer_hooks {
-	
+
 	/**
 	 * This method check if a resource is an external resource.
-	 * 
+	 *
 	 * @param $url
 	 * @return bool
 	 */
 	protected function isExternalResource($url) {
 		return substr(strtolower($url), 0, 4) == 'http' || substr(strtolower($url), 0, 2) == '//' ;
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @param string $content
@@ -31,11 +31,11 @@ abstract class tx_js_css_optimizer_hooks {
 	protected function createCacheFile($name,$content){
 		$name = $this->getPrefix($name).$name;
 		$path = $this->getCacheFolder().$name;
-		if (!is_dir($this->getCacheFolder())){ 
+		if (!is_dir($this->getCacheFolder())){
 			t3lib_div::mkdir ($this->getCacheFolder());
 		}
 		$temp_file = $path.'.tmp';
-		if(false === file_put_contents($temp_file,$content)){ 
+		if(false === file_put_contents($temp_file,$content)){
 			throw new Exception('clould not create the cache file');
 		}
 		t3lib_div::fixPermissions($temp_file);
@@ -57,7 +57,7 @@ abstract class tx_js_css_optimizer_hooks {
 		$baseFolder = t3lib_div::resolveBackPath($root . $baseFolder);
 
 		$content =  preg_replace('/url[ ]*\([ ]*[\'"]*[\.\.\/]{3}([\w]+\.[\w]+)/i', 'url('.$baseFolder.'/$1', $content ); // background: url(../test3.gif);
-		$content =  preg_replace('/url[ ]*\(([ ]*[\'"]*)([a-z|0-9|_|-]+)/i', 'url($1'.$baseFolder.'/$2', $content ); // background: url(images/test2.gif);
+		$content =  preg_replace('/url[ ]*\(([ ]*[\'"]*)(?!data:[a-z]+\/[a-z]+;)([a-z|0-9|_|-]+)/i', 'url($1'.$baseFolder.'/$2', $content ); // background: url(images/test2.gif);
 		$content =  preg_replace('/url[ ]*\(([ ]*[\'"]*)([\.\.\/]{3})([\.\.\/]*)/i', 'url($1'.$baseFolder.'/$2$3', $content ); //background: url(../images/test1.gif);  or background: url(../../images/test4.gif);
 		return $content;
 	}
@@ -88,7 +88,7 @@ abstract class tx_js_css_optimizer_hooks {
 	protected function getCacheFolder(){
 		return PATH_site . 'typo3temp'.DIRECTORY_SEPARATOR.'js_css_optimizer'.DIRECTORY_SEPARATOR;
 	}
-	
+
 	/**
 	 * @param string $file
 	 * @return string
@@ -106,12 +106,12 @@ abstract class tx_js_css_optimizer_hooks {
 		}
 		$path = t3lib_div::resolveBackPath(PATH_site.DIRECTORY_SEPARATOR . $file);
 		if(!file_exists($path)){
-			throw new Exception('tx_js_css_optimizer: file not found: '.$path);	
+			throw new Exception('tx_js_css_optimizer: file not found: '.$path);
 		}
 		t3lib_div::fixPermissions($path);
 		$content = file_get_contents($path);
 		if(FALSE === $content){
-			throw new Exception('tx_js_css_optimizer: could not read file: '.$path);	
+			throw new Exception('tx_js_css_optimizer: could not read file: '.$path);
 		}
 		return $content;
 	}
@@ -129,7 +129,7 @@ abstract class tx_js_css_optimizer_hooks {
 		}
 		return $filename;
 	}
-	
+
 	/**
 	 * Get the Prefix of the file names
 	 * @param string $name

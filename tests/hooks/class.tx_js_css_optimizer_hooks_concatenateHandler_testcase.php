@@ -40,7 +40,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 	 * @return void
 	 */
 	public function test_process() {
-		
+
 		$folder = t3lib_extMgm::siteRelPath ( 'js_css_optimizer' ) . 'tests/hooks/fixtures/';
 		$jsLibs = array ('extjs' => array ('file' => $folder . 'test1.js' ), 'jquery' => array ('file' => $folder . 'test2.js' ) );
 		$jsFiles = array ($folder . 'test1.js' => array (), $folder . 'test2.js' => array () );
@@ -83,7 +83,16 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 		$jsLibs = array ();
 		$jsFiles = array ();
 		$jsFooterFiles = array ();
-		$cssFiles = array ($folder . 'testpath1.css' => array (), $folder . 'testpath2.css' => array (), $folder . 'testpath3.css' => array (), $folder . 'testpath4.css' => array (), $folder . 'testpath5.css' => array (), $folder . 'testpath6.css' => array (), $folder . 'testpath7.css' => array (), $folder . 'testpath8.css' => array (), $folder . 'testpath9.css' => array (), $folder . 'testpath10.css' => array () );
+		$cssFiles = array (	$folder . 'testpath1.css' => array (),
+							$folder . 'testpath2.css' => array (),
+							$folder . 'testpath3.css' => array (),
+							$folder . 'testpath4.css' => array (),
+							$folder . 'testpath5.css' => array (),
+							$folder . 'testpath6.css' => array (),
+							$folder . 'testpath7.css' => array (),
+							$folder . 'testpath8.css' => array (),
+							$folder . 'testpath9.css' => array (),
+							$folder . 'testpath10.css' => array ());
 		$args = array ('jsLibs' => &$jsLibs, 'jsFiles' => &$jsFiles, 'jsFooterFiles' => &$jsFooterFiles, 'cssFiles' => &$cssFiles );
 		$this->concatenateHandler->process ( $args );
 		$this->assertEquals ( 1, count ( $cssFiles ) );
@@ -91,6 +100,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 			$path = PATH_site . $cssFile;
 			$this->assertTrue ( file_exists ( $path ) );
 			$content = file_get_contents ( $path );
+
 			$this->assertContains ( '/fixtures/../images/test1.gif', $content );
 			$this->assertContains ( '/fixtures/images/test2.gif', $content );
 			$this->assertContains ( '/fixtures/test3.gif', $content );
@@ -103,6 +113,39 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 			$this->assertContains ( "url(\"/typo3conf/ext/js_css_optimizer/tests/hooks/fixtures/images/footer-notes-arrow.gif\")", $content, $content );
 		}
 	}
+
+	/**
+	 * Testcase to check if the path is not prepended when the content is an inline data attribute.
+	 *
+	 * Note: checked in regex with negative look ahead:
+	 * (?!data:[a-z]+\/[a-z]+;) => something like "data:xxx/xx;" should not be a prefix
+	 *
+	 */
+	public function test_FixRelativeCssPathsKeepsInlineData() {
+		$folder = t3lib_extMgm::siteRelPath ( 'js_css_optimizer' ) . 'tests/hooks/fixtures/';
+		$jsLibs = array ();
+		$jsFiles = array ();
+		$jsFooterFiles = array ();
+
+		$cssFiles = array 	(
+								$folder . 'testpath11.css' => array ()
+							);
+
+		$args = array ('jsLibs' => &$jsLibs, 'jsFiles' => &$jsFiles, 'jsFooterFiles' => &$jsFooterFiles, 'cssFiles' => &$cssFiles );
+		$this->concatenateHandler->process ( $args );
+		$this->assertEquals ( 1, count ( $cssFiles ) );
+
+		foreach ( array_keys ( $cssFiles ) as $cssFile ) {
+			$path = PATH_site . $cssFile;
+			$this->assertTrue ( file_exists ( $path ) );
+			$content = file_get_contents ( $path );
+
+			//we assume to find the inline data
+			$this->assertContains("data:image/png;base64,iV", $content);
+			$this->assertNotContains("typo3conf/ext/", $content);
+		}
+	}
+
 	/**
 	 * test the EXT Path
 	 */
@@ -186,7 +229,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 			$content = file_get_contents ( $path );
 			$this->assertContains ( '@charset', $content );
 		}
-	
+
 	}
 	/**
 	 * Test the method splitCssFilesMediaTypes
@@ -208,7 +251,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 	}
 	/**
 	 * This testcase should test if external resources are not optimized.
-	 * 
+	 *
 	 */
 	public function test_isExternalResourceKeepsExternalResources() {
 		//jsLibs have theire file name in the meta data
@@ -216,10 +259,10 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 		$jsFiles = array ('http://www.google.de/test.js' => array () );
 		$jsFooterFiles = array ();
 		$cssFiles = array ();
-		
+
 		$args = array ('jsLibs' => &$jsLibs, 'jsFiles' => &$jsFiles, 'jsFooterFiles' => &$jsFooterFiles, 'cssFiles' => &$cssFiles );
 		$this->concatenateHandler->process ( $args );
-		
+
 		//we expect that the two external librarys are kept and do not get bundled
 		$this->assertEquals ( 1, count ( $jsLibs ) );
 		$this->assertEquals ( 1, count ( $jsFiles ) );
@@ -227,7 +270,7 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 	}
 	/**
 	 * This testcase should test if external and internal resources are kept.
-	 * 
+	 *
 	 */
 	public function test_isExternalResourcesCanHandleMixedInternalAndExternalResources() {
 		$fixtureFile = 'EXT:js_css_optimizer/tests/hooks/fixtures/test1.js';
@@ -236,13 +279,13 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 		$jsFiles = array ('http://www.externaluri.de/test.js' => array () );
 		$jsFooterFiles = array ();
 		$cssFiles = array ();
-		
+
 		$args = array ('jsLibs' => &$jsLibs, 'jsFiles' => &$jsFiles, 'jsFooterFiles' => &$jsFooterFiles, 'cssFiles' => &$cssFiles );
 		$this->concatenateHandler->process ( $args );
 		//we expect that the two external librarys are kept and do not get bundled
 		$this->assertEquals ( 1, count ( $jsFiles ) );
-		
-		//we expect that we have two libs, one bundled lib that should contain the content from the local 
+
+		//we expect that we have two libs, one bundled lib that should contain the content from the local
 		//and the external lib should still be left
 		$this->assertEquals ( 2, count ( $jsLibs ) );
 		foreach ( array_keys ( $jsLibs ) as $key ) {
@@ -267,6 +310,6 @@ class tx_js_css_optimizer_hooks_concatenateHandler_testcase extends tx_phpunit_t
 		unset ( $this->concatenateHandler );
 		$cachehandler = new tx_js_css_optimizer_hooks_cacheHandler ();
 		$cachehandler->deleteCache ( array ('cacheCmd' => 'all' ) );
-	
+
 	}
 }
