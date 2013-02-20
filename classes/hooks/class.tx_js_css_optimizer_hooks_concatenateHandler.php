@@ -37,8 +37,8 @@ class tx_js_css_optimizer_hooks_concatenateHandler extends tx_js_css_optimizer_h
 				if (isset ( $conf ['charsetCSS'] ) && ! empty ( $conf ['charsetCSS'] )) {
 					$charsetCSS = $conf ['charsetCSS'];
 				}
-				foreach ( $this->splitCssFilesMediaTypes ( $args ['cssFiles'] ) as $mediaType => $files ) {
-					$this->createNewCssBundle ( $files, '_' . $mediaType . '_bundled_cssFiles.css', $charsetCSS, $args ['cssFiles'] );
+				foreach ( $this->splitCssFilesMediaTypes ( $args ['cssFiles'] ) as $files ) {
+					$this->createNewCssBundle ( $files, '_' . sha1 ( var_export ( $files, TRUE ) ) . '_bundled_cssFiles.css', $charsetCSS, $args ['cssFiles'] );
 				}
 			}
 		}
