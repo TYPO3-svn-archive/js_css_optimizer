@@ -31,16 +31,19 @@ abstract class tx_js_css_optimizer_hooks {
 	protected function createCacheFile($name,$content){
 		$name = $this->getPrefix($name).$name;
 		$path = $this->getCacheFolder().$name;
-		if (!is_dir($this->getCacheFolder())){
+		if (FALSE === is_dir($this->getCacheFolder())){
 			t3lib_div::mkdir ($this->getCacheFolder());
 		}
 		$temp_file = $path.'.tmp';
-		if(false === file_put_contents($temp_file,$content)){
-			throw new Exception('clould not create the cache file');
+		if(FALSE === file_put_contents($temp_file,$content)){
+			throw new Exception('could not create the cache file');
 		}
 		t3lib_div::fixPermissions($temp_file);
-		if(false === rename($temp_file,$path)){
-			throw new Exception('clould not rename the cache file');
+
+		// rename the temp-file (on concurrent file systems (e.g. NFS), this action can possibly fail if another PHP-process has already renamed the temp-file)
+		$success = @rename($temp_file,$path);
+		if(FALSE === $success && FALSE === file_exists($path)) {
+			throw new Exception('could not rename the cache file');
 		}
 	}
 
